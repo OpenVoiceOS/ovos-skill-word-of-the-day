@@ -1,6 +1,6 @@
 # Word Of The Day Skill
 
-Get Word of the Day from [Dictionary.com.](Dictionary.com) or [Dicionário Priberam](https://dicionario.priberam.org/)
+Get Word of the Day from [Dictionary.com](https://Dictionary.com) or [Dicionário Priberam](https://dicionario.priberam.org/)
 
 ![img.png](img.png)
 
