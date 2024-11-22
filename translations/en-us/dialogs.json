@@ -1,5 +1,8 @@
 {
     "word.of.day.dialog": [
         "The word of the day is {word}"
+    ],
+    "unknown.wod.dialog": [
+        "I don't know the word of the day"
     ]
 }

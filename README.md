@@ -1,10 +1,10 @@
 # Word Of The Day Skill
 
-Get Word of the Day from [Dictionary.com.](Dictionary.com)
+Get Word of the Day from [Dictionary.com.](Dictionary.com) or [Dicionário Priveram](https://dicionario.priberam.org/)
 
 ![img.png](img.png)
 
-> NOTE: Dictionary.com is english only, this skill will use machine translation for other languages.
+> NOTE: English and Portuguese **only**, other languages will speak an error. Open an Issue/Pull Request if you have a website suggestion for your language!
 
 ###  Usage
 * "tell me the word of the day"
@@ -13,4 +13,3 @@ Get Word of the Day from [Dictionary.com.](Dictionary.com)
 
 ###  Credits 
 * [Fatima Mohamed - skill idea](https://github.com/adropofilm/word-of-the-day-skill)
-* Dictionary.com 
