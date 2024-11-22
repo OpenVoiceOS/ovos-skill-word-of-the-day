@@ -35,6 +35,19 @@ def get_wod_pt(pt_br=False):
     return wod, defi
 
 
+def get_wod_ca():
+    url = "https://rodamots.cat/"
+    html = requests.get(url).text
+    soup = BeautifulSoup(html, "html.parser")
+    h = soup.find("article").find("a")
+    url2 = h["href"]
+    html = requests.get(url2).text
+    soup = BeautifulSoup(html, "html.parser")
+    w = soup.find("h1", {"class": "entry-title single-title"}).text.strip()[:-1].split("[")[0].strip()
+    d = soup.find("div", {"class": "innerdef"}).find("p").text
+    return w, d
+
+
 class WordOfTheDaySkill(OVOSSkill):
 
     @intent_handler(IntentBuilder("WordOfTheDayIntent").require("WordOfTheDayKeyword"))
@@ -46,6 +59,8 @@ class WordOfTheDaySkill(OVOSSkill):
             wod, definition = get_wod_pt()
         elif l.lower().split("-")[0] == "en":
             wod, definition = get_wod()
+        elif l.lower().split("-")[0] == "ca":
+            wod, definition = get_wod_ca()
         else:
             self.speak_dialog("unknown.wod")
             return
@@ -53,3 +68,5 @@ class WordOfTheDaySkill(OVOSSkill):
         self.speak_dialog("word.of.day", {"word": wod})
         self.gui.show_text(definition, wod)
         self.speak(definition)
+
+
