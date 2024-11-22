@@ -1,5 +1,5 @@
 {
     "word.of.day.dialog": [
-        "Okay, let's get the word of the day."
+        "The word of the day is {word}"
     ]
 }

@@ -26,8 +26,7 @@ class WordOfTheDaySkill(UniversalSkill):
 
     @intent_handler(IntentBuilder("WordOfTheDayIntent").require("WordOfTheDayKeyword"))
     def handle_word_of_the_day_intent(self, message):
-        self.speak_dialog("word.of.day")
         wod, definition = get_wod()
+        self.speak_dialog("word.of.day", {"word": wod})
         self.gui.show_text(definition, wod)
-        self.speak(f"The word of the day is {wod}")
         self.speak(definition)
