@@ -1,0 +1,8 @@
+{
+  "word.of.day.dialog": [
+    "El mot del dia és {word}"
+  ],
+  "unknown.wod.dialog": [
+    "No sé quin és el mot del dia"
+  ]
+}
