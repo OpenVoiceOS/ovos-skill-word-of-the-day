@@ -1,0 +1,8 @@
+{
+  "word.of.day.dialog": [
+    "Dagens ord er {word}"
+  ],
+  "unknown.wod.dialog": [
+    null
+  ]
+}
