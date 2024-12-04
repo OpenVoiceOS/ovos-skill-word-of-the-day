@@ -3,6 +3,6 @@
     "Dagens ord er {word}"
   ],
   "unknown.wod.dialog": [
-    null
+    "Jeg kender ikke dagens ord"
   ]
 }
