@@ -1,20 +1,30 @@
 # Changelog
 
-## [0.1.0a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.1.0a1) (2024-11-22)
+## [0.1.3a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.1.3a1) (2025-03-20)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.0.1a2...0.1.0a1)
-
-**Merged pull requests:**
-
-- feat: catalan word of the day [\#2](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/2) ([JarbasAl](https://github.com/JarbasAl))
-
-## [0.0.1a2](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.0.1a2) (2024-11-22)
-
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/e44b8d81fc2683056b092f8eec3f0e501e13ac9c...0.0.1a2)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.1.1a2...0.1.3a1)
 
 **Merged pull requests:**
 
-- pt-pt/translate [\#1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/1) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
+- fix automations [\#7](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/7) ([JarbasAl](https://github.com/JarbasAl))
+
+## [0.1.1a2](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.1.1a2) (2024-12-04)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.1.1a1...0.1.1a2)
+
+**Merged pull requests:**
+
+- da-dk/translate [\#6](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/6) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
+
+## [0.1.1a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.1.1a1) (2024-12-04)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.1.0...0.1.1a1)
+
+**Merged pull requests:**
+
+- de-de/translate [\#5](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/5) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
+- Add Catalan strings [\#4](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/4) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
+- Add Catalan translation [\#3](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/3) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
 
 
 

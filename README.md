@@ -1,6 +1,6 @@
 # Word Of The Day Skill
 
-Get Word of the Day from [Dictionary.com.](Dictionary.com), [Dicionário Priberam](https://dicionario.priberam.org/) or [RodaMots.cat](https://rodamots.cat/)
+Get Word of the Day from [Dictionary.com.](https://Dictionary.com), [Dicionário Priberam](https://dicionario.priberam.org/) or [RodaMots.cat](https://rodamots.cat/)
 
 ![img.png](img.png)
 
