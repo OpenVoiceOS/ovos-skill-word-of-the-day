@@ -1,8 +1,8 @@
 # Changelog
 
-## [0.1.1a2](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.1.1a2) (2025-01-25)
+## [0.1.3a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.1.3a1) (2025-03-20)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.1.1a2...0.1.1a2)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.1.1a2...0.1.3a1)
 
 **Merged pull requests:**
 
