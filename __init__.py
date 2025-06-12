@@ -1,4 +1,7 @@
+import datetime
+
 import requests
+from typing import Optional, Union
 from bs4 import BeautifulSoup
 from ovos_workshop.decorators import intent_handler
 from ovos_workshop.intents import IntentBuilder
@@ -6,10 +9,9 @@ from ovos_workshop.skills.auto_translatable import OVOSSkill
 from ovos_utils.time import now_local
 
 
-def get_wod_gl():
-
+def get_wod_gl(date: Optional[Union[datetime.datetime, datetime.date]] = None):
     url = 'https://portaldaspalabras.gal/lexico/palabra-do-dia'
-    now = now_local()
+    now = date or now_local()
     data = {
         'orde': 'data',
         'comeza': '',
@@ -28,6 +30,10 @@ def get_wod_gl():
 
     soup = BeautifulSoup(response.content, "html.parser")
     h = soup.find("div", {"class":"archive-palabra-do-dia"})
+    if h is None:
+        if date is None:
+            return get_wod_gl(now - datetime.timedelta(days=1))
+        raise RuntimeError(f"Failed to parse word of the day from '{url}'")
     wod = h.text.strip().split("\n")[-1]
 
     for i in range(3):
