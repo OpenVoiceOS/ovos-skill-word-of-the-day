@@ -3,6 +3,43 @@ from bs4 import BeautifulSoup
 from ovos_workshop.decorators import intent_handler
 from ovos_workshop.intents import IntentBuilder
 from ovos_workshop.skills.auto_translatable import OVOSSkill
+from ovos_utils.time import now_local
+
+
+def get_wod_gl():
+
+    url = 'https://portaldaspalabras.gal/lexico/palabra-do-dia'
+    now = now_local()
+    data = {
+        'orde': 'data',
+        'comeza': '',
+        'palabra': '',
+        'data-do': f'{now.year}-{now.month}-{now.day}',
+        'data-ao': f'{now.year}-{now.month}-{now.day}',
+        'paged': ''
+    }
+
+    for i in range(3):
+        response = requests.post(url, data=data)
+        if response.status_code == 200:
+            break
+    else:
+        raise RuntimeError(f"Failed to retrieve data from '{url}'")
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    h = soup.find("div", {"class":"archive-palabra-do-dia"})
+    wod = h.text.strip().split("\n")[-1]
+
+    for i in range(3):
+        response = requests.post(f"{url}/{wod}", data=data)
+        if response.status_code == 200:
+            break
+    else:
+        raise RuntimeError(f"Failed to retrieve data from '{url}'")
+
+    soup = BeautifulSoup(response.content, "html.parser")
+    h = soup.find("div", {"class": "palabra-do-dia-definition"})
+    return wod, h.text
 
 
 def get_wod():
@@ -61,6 +98,8 @@ class WordOfTheDaySkill(OVOSSkill):
             wod, definition = get_wod()
         elif l.lower().split("-")[0] == "ca":
             wod, definition = get_wod_ca()
+        elif l.lower().split("-")[0] == "gl":
+            wod, definition = get_wod_gl()
         else:
             self.speak_dialog("unknown.wod")
             return
