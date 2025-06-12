@@ -21,13 +21,17 @@ def get_wod_gl(date: Optional[Union[datetime.datetime, datetime.date]] = None):
         'paged': ''
     }
 
-    for i in range(3):
-        response = requests.post(url, data=data)
-        if response.status_code == 200:
-            break
-    else:
+    def post_retry(u, data=None):
+        for _ in range(3):
+            try:
+                response = requests.post(u, data=data)
+                if response.status_code == 200:
+                    return response
+            except:
+                continue
         raise RuntimeError(f"Failed to retrieve data from '{url}'")
 
+    response = post_retry(url, data)
     soup = BeautifulSoup(response.content, "html.parser")
     h = soup.find("div", {"class":"archive-palabra-do-dia"})
     if h is None:
@@ -36,15 +40,11 @@ def get_wod_gl(date: Optional[Union[datetime.datetime, datetime.date]] = None):
         raise RuntimeError(f"Failed to parse word of the day from '{url}'")
     wod = h.text.strip().split("\n")[-1]
 
-    for i in range(3):
-        response = requests.post(f"{url}/{wod}", data=data)
-        if response.status_code == 200:
-            break
-    else:
-        raise RuntimeError(f"Failed to retrieve data from '{url}'")
-
+    response = post_retry(f"{url}/{wod}")
     soup = BeautifulSoup(response.content, "html.parser")
     h = soup.find("div", {"class": "palabra-do-dia-definition"})
+    if h is None:
+        raise RuntimeError(f"Failed to parse word of the day from '{url}'")
     return wod, h.text
 
 
