@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.0a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.0a1) (2025-06-12)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.1.4a1...0.2.0a1)
+
+**Implemented enhancements:**
+
+- galician word of the day [\#11](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/issues/11)
+
+**Merged pull requests:**
+
+- feat: portaldaspalabras.gal [\#12](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/12) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.1.4a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.1.4a1) (2025-06-05)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.1.3...0.1.4a1)
