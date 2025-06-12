@@ -1,8 +1,51 @@
+import datetime
+
 import requests
+from typing import Optional, Union
 from bs4 import BeautifulSoup
 from ovos_workshop.decorators import intent_handler
 from ovos_workshop.intents import IntentBuilder
 from ovos_workshop.skills.auto_translatable import OVOSSkill
+from ovos_utils.time import now_local
+
+
+def get_wod_gl(date: Optional[Union[datetime.datetime, datetime.date]] = None):
+    url = 'https://portaldaspalabras.gal/lexico/palabra-do-dia'
+    now = date or now_local()
+    data = {
+        'orde': 'data',
+        'comeza': '',
+        'palabra': '',
+        'data-do': f'{now.year}-{now.month}-{now.day}',
+        'data-ao': f'{now.year}-{now.month}-{now.day}',
+        'paged': ''
+    }
+
+    def post_retry(u, data=None):
+        for _ in range(3):
+            try:
+                response = requests.post(u, data=data)
+                if response.status_code == 200:
+                    return response
+            except:
+                continue
+        raise RuntimeError(f"Failed to retrieve data from '{url}'")
+
+    response = post_retry(url, data)
+    soup = BeautifulSoup(response.content, "html.parser")
+    h = soup.find("div", {"class":"archive-palabra-do-dia"})
+    if h is None:
+        if date is None:
+            return get_wod_gl(now - datetime.timedelta(days=1))
+        raise RuntimeError(f"Failed to parse word of the day from '{url}'")
+    wod = h.text.strip().split("\n")[-1]
+
+    response = post_retry(f"{url}/{wod}")
+    soup = BeautifulSoup(response.content, "html.parser")
+    h = soup.find("div", {"class": "palabra-do-dia-definition"})
+    if h is None:
+        raise RuntimeError(f"Failed to parse word of the day from '{url}'")
+    return wod, h.text
 
 
 def get_wod():
@@ -61,6 +104,8 @@ class WordOfTheDaySkill(OVOSSkill):
             wod, definition = get_wod()
         elif l.lower().split("-")[0] == "ca":
             wod, definition = get_wod_ca()
+        elif l.lower().split("-")[0] == "gl":
+            wod, definition = get_wod_gl()
         else:
             self.speak_dialog("unknown.wod")
             return
