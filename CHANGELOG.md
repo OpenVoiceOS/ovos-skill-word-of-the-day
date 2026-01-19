@@ -1,24 +1,13 @@
 # Changelog
 
-## [0.2.0a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.0a1) (2025-06-12)
+## [0.2.1a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.1a1) (2026-01-19)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.1.4a1...0.2.0a1)
-
-**Implemented enhancements:**
-
-- galician word of the day [\#11](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/issues/11)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.0...0.2.1a1)
 
 **Merged pull requests:**
 
-- feat: portaldaspalabras.gal [\#12](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/12) ([JarbasAl](https://github.com/JarbasAl))
-
-## [0.1.4a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.1.4a1) (2025-06-05)
-
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.1.3...0.1.4a1)
-
-**Merged pull requests:**
-
-- gl/translate [\#9](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/9) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
+- gl-es/translate [\#15](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/15) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
+- es-es/translate [\#14](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/14) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
 
 
 
