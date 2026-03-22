@@ -1,4 +1,5 @@
 import datetime
+import re
 
 import requests
 from typing import Optional, Union
@@ -7,6 +8,36 @@ from ovos_workshop.decorators import intent_handler
 from ovos_workshop.intents import IntentBuilder
 from ovos_workshop.skills.auto_translatable import OVOSSkill
 from ovos_utils.time import now_local
+
+
+REQUEST_TIMEOUT = 20
+REQUEST_HEADERS = {
+    "User-Agent": "OVOS WordOfTheDay Skill/1.0 "
+                  "(https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day)"
+}
+FR_WIKTIONARY_API = "https://fr.wiktionary.org/w/api.php"
+FR_WIKTIONARY_PAGE = "Wiktionnaire:Page d’accueil"
+
+
+def _http_get(url, **kwargs):
+    headers = dict(REQUEST_HEADERS)
+    headers.update(kwargs.pop("headers", {}) or {})
+    timeout = kwargs.pop("timeout", REQUEST_TIMEOUT)
+    return requests.get(url, headers=headers, timeout=timeout, **kwargs)
+
+
+def _http_post(url, **kwargs):
+    headers = dict(REQUEST_HEADERS)
+    headers.update(kwargs.pop("headers", {}) or {})
+    timeout = kwargs.pop("timeout", REQUEST_TIMEOUT)
+    return requests.post(url, headers=headers, timeout=timeout, **kwargs)
+
+
+def _normalize_definition_text(text: str) -> str:
+    text = " ".join(text.split())
+    text = re.sub(r"\s+([,.;:!?])", r"\1", text)
+    text = re.sub(r"([’'])\s+", r"\1", text)
+    return text.strip()
 
 
 def get_wod_gl(date: Optional[Union[datetime.datetime, datetime.date]] = None):
@@ -24,7 +55,7 @@ def get_wod_gl(date: Optional[Union[datetime.datetime, datetime.date]] = None):
     def post_retry(u, data=None):
         for _ in range(3):
             try:
-                response = requests.post(u, data=data)
+                response = _http_post(u, data=data)
                 if response.status_code == 200:
                     return response
             except:
@@ -49,7 +80,7 @@ def get_wod_gl(date: Optional[Union[datetime.datetime, datetime.date]] = None):
 
 
 def get_wod():
-    html = requests.get("https://www.dictionary.com/e/word-of-the-day").text
+    html = _http_get("https://www.dictionary.com/e/word-of-the-day").text
 
     soup = BeautifulSoup(html, "html.parser")
 
@@ -64,7 +95,7 @@ def get_wod():
 
 def get_wod_pt(pt_br=False):
     url = "https://dicionario.priberam.org/"
-    html = requests.get(url).text
+    html = _http_get(url).text
     soup = BeautifulSoup(html, "html.parser")
 
     h = soup.find("div", {"class": "dp-definicao-header"})
@@ -80,15 +111,55 @@ def get_wod_pt(pt_br=False):
 
 def get_wod_ca():
     url = "https://rodamots.cat/"
-    html = requests.get(url).text
+    html = _http_get(url).text
     soup = BeautifulSoup(html, "html.parser")
     h = soup.find("article").find("a")
     url2 = h["href"]
-    html = requests.get(url2).text
+    html = _http_get(url2).text
     soup = BeautifulSoup(html, "html.parser")
     w = soup.find("h1", {"class": "entry-title single-title"}).text.strip()[:-1].split("[")[0].strip()
     d = soup.find("div", {"class": "innerdef"}).find("p").text
     return w, d
+
+
+def get_wod_fr():
+    response = _http_get(FR_WIKTIONARY_API, params={
+        "action": "parse",
+        "page": FR_WIKTIONARY_PAGE,
+        "format": "json",
+        "prop": "text"
+    })
+    response.raise_for_status()
+
+    data = response.json()
+    html = data.get("parse", {}).get("text", {}).get("*")
+    if not html:
+        raise RuntimeError("Failed to retrieve French word of the day")
+
+    soup = BeautifulSoup(html, "html.parser")
+    box = soup.find(id="main-etl")
+    if box is None:
+        raise RuntimeError("Failed to parse French word of the day")
+
+    title = box.find("p", recursive=False)
+    word_link = title.find("a") if title else None
+    definition_list = box.find("ol", recursive=False)
+    first_definition = definition_list.find("li", recursive=False) if definition_list else None
+
+    if word_link is None or first_definition is None:
+        raise RuntimeError("Failed to parse French word of the day")
+
+    definition_node = BeautifulSoup(str(first_definition), "html.parser").find("li")
+    if definition_node is None:
+        raise RuntimeError("Failed to parse French word of the day")
+    for nested in definition_node.find_all(["ul", "ol", "dl"]):
+        nested.decompose()
+
+    wod = word_link.get_text(strip=True)
+    definition = _normalize_definition_text(
+        definition_node.get_text(" ", strip=True)
+    )
+    return wod, definition
 
 
 class WordOfTheDaySkill(OVOSSkill):
@@ -102,6 +173,8 @@ class WordOfTheDaySkill(OVOSSkill):
             wod, definition = get_wod_pt()
         elif l.lower().split("-")[0] == "en":
             wod, definition = get_wod()
+        elif l.lower().split("-")[0] == "fr":
+            wod, definition = get_wod_fr()
         elif l.lower().split("-")[0] == "ca":
             wod, definition = get_wod_ca()
         elif l.lower().split("-")[0] == "gl":
@@ -113,5 +186,3 @@ class WordOfTheDaySkill(OVOSSkill):
         self.speak_dialog("word.of.day", {"word": wod})
         self.gui.show_text(definition, wod)
         self.speak(definition)
-
-
