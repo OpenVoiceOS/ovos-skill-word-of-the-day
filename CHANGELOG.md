@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.2a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.2a1) (2026-03-24)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.1a1...0.2.2a1)
+
+**Merged pull requests:**
+
+- fix: rename bare lang code locale directories [\#19](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/19) ([ovos-localize[bot]](https://github.com/apps/ovos-localize))
+- Add French runtime word-of-the-day support [\#17](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/17) ([goldyfruit](https://github.com/goldyfruit))
+- Add French word-of-the-day locale [\#16](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/16) ([goldyfruit](https://github.com/goldyfruit))
+
 ## [0.2.1a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.1a1) (2026-01-19)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.0...0.2.1a1)
