@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.3a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.3a1) (2026-03-24)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.2a1...0.2.3a1)
+
+**Merged pull requests:**
+
+- fix: rename bare lang code locale directories [\#21](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/21) ([ovos-localize[bot]](https://github.com/apps/ovos-localize))
+
 ## [0.2.2a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.2a1) (2026-03-24)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.1a1...0.2.2a1)
