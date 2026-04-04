@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.4a2](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.4a2) (2026-04-04)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.4a1...0.2.4a2)
+
+**Merged pull requests:**
+
+- ci: modernize GitHub workflows [\#25](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/25) ([JarbasAl](https://github.com/JarbasAl))
+- fix\(i18n\): normalize locale folders to canonical BCP-47 [\#24](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/24) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.4a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.4a1) (2026-03-24)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.3a1...0.2.4a1)
