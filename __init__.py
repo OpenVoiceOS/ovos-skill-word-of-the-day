@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from ovos_workshop.decorators import intent_handler
 from ovos_workshop.intents import IntentBuilder
 from ovos_workshop.skills.auto_translatable import OVOSSkill
+from ovos_utils.log import LOG
 from ovos_utils.time import now_local
 
 
@@ -17,6 +18,7 @@ REQUEST_HEADERS = {
 }
 FR_WIKTIONARY_API = "https://fr.wiktionary.org/w/api.php"
 FR_WIKTIONARY_PAGE = "Wiktionnaire:Page d’accueil"
+DICTIONARY_WOD_URL = "https://www.dictionary.com/e/word-of-the-day"
 
 
 def _http_get(url, **kwargs):
@@ -40,6 +42,47 @@ def _normalize_definition_text(text: str) -> str:
     return text.strip()
 
 
+def _dictionary_definition_text(node) -> str:
+    if "otd-item-headword__pos-blocks" in (node.get("class") or []):
+        lines = [
+            line.strip()
+            for line in node.get_text("\n", strip=True).splitlines()
+            if line.strip()
+        ]
+        if lines:
+            return lines[-1]
+    return node.get_text(" ", strip=True)
+
+
+def _extract_dictionary_wod(html: str, url: str = DICTIONARY_WOD_URL):
+    soup = BeautifulSoup(html, "html.parser")
+
+    entry = soup.find(class_="wotd-entry-wrapper")
+    word_node = None
+    definition_node = None
+    if entry is not None:
+        word_node = entry.find(class_="wotd-entry-headword")
+        definition_node = entry.find(class_="wotd-entry-definition")
+
+    word_node = word_node or soup.find("div", {
+        "class": "otd-item-headword__word"
+    }) or soup.find(class_="wotd-entry-headword")
+    definition_node = definition_node or soup.find("div", {
+        "class": "otd-item-headword__pos-blocks"
+    }) or soup.find(class_="wotd-entry-definition")
+
+    if word_node is None or definition_node is None:
+        raise RuntimeError(f"Failed to parse word of the day from '{url}'")
+
+    wod = _normalize_definition_text(word_node.get_text(" ", strip=True))
+    definition = _normalize_definition_text(
+        _dictionary_definition_text(definition_node)
+    )
+    if not wod or not definition:
+        raise RuntimeError(f"Failed to parse word of the day from '{url}'")
+    return wod, definition
+
+
 def get_wod_gl(date: Optional[Union[datetime.datetime, datetime.date]] = None):
     url = 'https://portaldaspalabras.gal/lexico/palabra-do-dia'
     now = date or now_local()
@@ -58,7 +101,7 @@ def get_wod_gl(date: Optional[Union[datetime.datetime, datetime.date]] = None):
                 response = _http_post(u, data=data)
                 if response.status_code == 200:
                     return response
-            except:
+            except Exception:
                 continue
         raise RuntimeError(f"Failed to retrieve data from '{url}'")
 
@@ -80,17 +123,9 @@ def get_wod_gl(date: Optional[Union[datetime.datetime, datetime.date]] = None):
 
 
 def get_wod():
-    html = _http_get("https://www.dictionary.com/e/word-of-the-day").text
-
-    soup = BeautifulSoup(html, "html.parser")
-
-    h = soup.find("div", {"class": "otd-item-headword__word"})
-    wod = h.text.strip()
-
-    h = soup.find("div", {"class": "otd-item-headword__pos-blocks"})
-    definition = h.text.strip().split("\n")[-1]
-
-    return wod, definition
+    response = _http_get(DICTIONARY_WOD_URL)
+    response.raise_for_status()
+    return _extract_dictionary_wod(response.text)
 
 
 def get_wod_pt(pt_br=False):
@@ -166,20 +201,26 @@ class WordOfTheDaySkill(OVOSSkill):
 
     @intent_handler(IntentBuilder("WordOfTheDayIntent").require("WordOfTheDayKeyword"))
     def handle_word_of_the_day_intent(self, message):
-        l = self.lang.lower()
-        if l.lower() == "pt-br":
-            wod, definition = get_wod_pt(pt_br=True)
-        elif l.lower().split("-")[0] == "pt":
-            wod, definition = get_wod_pt()
-        elif l.lower().split("-")[0] == "en":
-            wod, definition = get_wod()
-        elif l.lower().split("-")[0] == "fr":
-            wod, definition = get_wod_fr()
-        elif l.lower().split("-")[0] == "ca":
-            wod, definition = get_wod_ca()
-        elif l.lower().split("-")[0] == "gl":
-            wod, definition = get_wod_gl()
-        else:
+        lang = self.lang.lower()
+        primary_lang = lang.split("-")[0]
+        try:
+            if lang == "pt-br":
+                wod, definition = get_wod_pt(pt_br=True)
+            elif primary_lang == "pt":
+                wod, definition = get_wod_pt()
+            elif primary_lang == "en":
+                wod, definition = get_wod()
+            elif primary_lang == "fr":
+                wod, definition = get_wod_fr()
+            elif primary_lang == "ca":
+                wod, definition = get_wod_ca()
+            elif primary_lang == "gl":
+                wod, definition = get_wod_gl()
+            else:
+                self.speak_dialog("unknown.wod")
+                return
+        except Exception:
+            LOG.exception("Failed to retrieve word of the day")
             self.speak_dialog("unknown.wod")
             return
 
