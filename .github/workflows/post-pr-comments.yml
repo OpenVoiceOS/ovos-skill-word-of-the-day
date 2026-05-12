@@ -17,5 +17,5 @@ on:
 
 jobs:
   post:
-    uses: OpenVoiceOS/gh-automations/.github/workflows/post-pr-comment.yml@fix/fork-pr-comments
+    uses: OpenVoiceOS/gh-automations/.github/workflows/post-pr-comment.yml@dev
     secrets: inherit
