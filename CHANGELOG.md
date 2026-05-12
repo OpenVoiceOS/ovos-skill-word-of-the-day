@@ -1,24 +1,61 @@
 # Changelog
 
-## [0.2.0a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.0a1) (2025-06-12)
+## [0.2.5a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.5a1) (2026-05-12)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.1.4a1...0.2.0a1)
-
-**Implemented enhancements:**
-
-- galician word of the day [\#11](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/issues/11)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.4a3...0.2.5a1)
 
 **Merged pull requests:**
 
-- feat: portaldaspalabras.gal [\#12](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/12) ([JarbasAl](https://github.com/JarbasAl))
+- fix\(parsers\): real HTML fixtures + repair Priberam/Galician/Catalan + live monitor [\#31](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/31) ([JarbasAl](https://github.com/JarbasAl))
 
-## [0.1.4a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.1.4a1) (2025-06-05)
+## [0.2.4a3](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.4a3) (2026-05-12)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.1.3...0.1.4a1)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.4a2...0.2.4a3)
 
 **Merged pull requests:**
 
-- gl/translate [\#9](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/9) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
+- test: add ovoscope end-to-end tests [\#29](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/29) ([JarbasAl](https://github.com/JarbasAl))
+- Fix Dictionary.com word of the day parser [\#28](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/28) ([goldyfruit](https://github.com/goldyfruit))
+
+## [0.2.4a2](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.4a2) (2026-04-04)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.4a1...0.2.4a2)
+
+**Merged pull requests:**
+
+- ci: modernize GitHub workflows [\#25](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/25) ([JarbasAl](https://github.com/JarbasAl))
+- fix\(i18n\): normalize locale folders to canonical BCP-47 [\#24](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/24) ([JarbasAl](https://github.com/JarbasAl))
+
+## [0.2.4a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.4a1) (2026-03-24)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.3a1...0.2.4a1)
+
+**Merged pull requests:**
+
+- fix: rename bare lang code locale directories [\#18](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/18) ([ovos-localize[bot]](https://github.com/apps/ovos-localize))
+
+## [0.2.3a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.3a1) (2026-03-24)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.2a1...0.2.3a1)
+
+## [0.2.2a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.2a1) (2026-03-24)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.1a1...0.2.2a1)
+
+**Merged pull requests:**
+
+- fix: rename bare lang code locale directories [\#19](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/19) ([ovos-localize[bot]](https://github.com/apps/ovos-localize))
+- Add French runtime word-of-the-day support [\#17](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/17) ([goldyfruit](https://github.com/goldyfruit))
+- Add French word-of-the-day locale [\#16](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/16) ([goldyfruit](https://github.com/goldyfruit))
+
+## [0.2.1a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.1a1) (2026-01-19)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.0...0.2.1a1)
+
+**Merged pull requests:**
+
+- gl-es/translate [\#15](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/15) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
+- es-es/translate [\#14](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/14) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
 
 
 

@@ -1,0 +1,21 @@
+name: Post PR Comments
+# Runs after each CI workflow completes, in base-repo context (has secrets).
+# Downloads the pr-comment-section artifact and posts to the PR using the GitHub App.
+on:
+  workflow_run:
+    workflows:
+      - Build Tests
+      - Code Coverage
+      - License Check
+      - Lint
+      - Skill End-to-End Tests (ovoscope)
+      - PIP Audit
+      - Release Preview
+      - Repo Health
+      - Skill Check
+    types: [completed]
+
+jobs:
+  post:
+    uses: OpenVoiceOS/gh-automations/.github/workflows/post-pr-comment.yml@dev
+    secrets: inherit
