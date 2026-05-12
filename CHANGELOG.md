@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.4a3](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.4a3) (2026-05-12)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.4a2...0.2.4a3)
+
+**Merged pull requests:**
+
+- test: add ovoscope end-to-end tests [\#29](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/29) ([JarbasAl](https://github.com/JarbasAl))
+- Fix Dictionary.com word of the day parser [\#28](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/28) ([goldyfruit](https://github.com/goldyfruit))
+
 ## [0.2.4a2](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.4a2) (2026-04-04)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.4a1...0.2.4a2)
@@ -20,10 +29,6 @@
 ## [0.2.3a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.3a1) (2026-03-24)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.2a1...0.2.3a1)
-
-**Merged pull requests:**
-
-- fix: rename bare lang code locale directories [\#21](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/21) ([ovos-localize[bot]](https://github.com/apps/ovos-localize))
 
 ## [0.2.2a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.2a1) (2026-03-24)
 
