@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ovos-skill-word-of-the-day"
+dynamic = ["version"]
+description = "OVOS Word of the Day Skill"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "OpenVoiceOS" }]
+keywords = ["ovos", "skill", "plugin"]
+requires-python = ">=3.10"
+dependencies = [
+    "requests",
+    "bs4",
+    "ovos-workshop",
+]
+
+[project.optional-dependencies]
+test = ["pytest", "ovoscope"]
+
+[project.urls]
+Homepage = "https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day"
+
+[project.entry-points."ovos.plugin.skill"]
+"ovos-skill-word-of-the-day.openvoiceos" = "ovos_skill_word_of_the_day:WordOfTheDaySkill"
+
+[tool.setuptools]
+packages = ["ovos_skill_word_of_the_day"]
+include-package-data = true
+
+[tool.setuptools.package-dir]
+ovos_skill_word_of_the_day = "."
+
+[tool.setuptools.package-data]
+ovos_skill_word_of_the_day = ["locale/**/*", "*.json"]
+
+[tool.setuptools.dynamic]
+version = { attr = "version.__version__" }
