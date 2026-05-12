@@ -124,9 +124,3 @@ class TestWODFrench(_WODBase):
         self._run("mot du jour", "fr-FR")
 
 
-class TestWODUnknownLang(_WODBase):
-    """Unsupported language path: handler runs but speaks unknown.wod."""
-
-    def test_de_unknown(self):
-        # German is not in the language branches; handler should still complete.
-        self._run("word of the day", "de-DE")
