@@ -84,42 +84,34 @@ def _extract_dictionary_wod(html: str, url: str = DICTIONARY_WOD_URL):
 
 
 def get_wod_gl(date: Optional[Union[datetime.datetime, datetime.date]] = None):
-    url = 'https://portaldaspalabras.gal/lexico/palabra-do-dia'
-    now = date or now_local()
-    data = {
-        'orde': 'data',
-        'comeza': '',
-        'palabra': '',
-        'data-do': f'{now.year}-{now.month}-{now.day}',
-        'data-ao': f'{now.year}-{now.month}-{now.day}',
-        'paged': ''
-    }
+    """Galician word of the day from portaldaspalabras.gal.
 
-    def post_retry(u, data=None):
-        for _ in range(3):
-            try:
-                response = _http_post(u, data=data)
-                if response.status_code == 200:
-                    return response
-            except Exception:
-                continue
-        raise RuntimeError(f"Failed to retrieve data from '{url}'")
+    Two-step: home page links the current word inside an `.entry-title`
+    anchor; that link goes to a `palabra-do-dia/<slug>/` page that ships
+    the definition under `div.palabra-do-dia-definition`.
+    """
+    base = "https://portaldaspalabras.gal"
+    home = _http_get(f"{base}/").text
+    soup = BeautifulSoup(home, "html.parser")
+    link = None
+    for a in soup.find_all("a", href=re.compile(r"/lexico/palabra-do-dia/[^/]+/?$")):
+        anc = a.find_parent(class_=True)
+        if anc and "entry-title" in (anc.get("class") or []):
+            link = a
+            break
+    if link is None:
+        raise RuntimeError(f"Failed to find current word link on '{base}'")
+    word_url = link["href"]
+    if word_url.startswith("/"):
+        word_url = base + word_url
 
-    response = post_retry(url, data)
-    soup = BeautifulSoup(response.content, "html.parser")
-    h = soup.find("div", {"class":"archive-palabra-do-dia"})
-    if h is None:
-        if date is None:
-            return get_wod_gl(now - datetime.timedelta(days=1))
-        raise RuntimeError(f"Failed to parse word of the day from '{url}'")
-    wod = h.text.strip().split("\n")[-1]
-
-    response = post_retry(f"{url}/{wod}")
-    soup = BeautifulSoup(response.content, "html.parser")
-    h = soup.find("div", {"class": "palabra-do-dia-definition"})
-    if h is None:
-        raise RuntimeError(f"Failed to parse word of the day from '{url}'")
-    return wod, h.text
+    word_html = _http_get(word_url).text
+    soup = BeautifulSoup(word_html, "html.parser")
+    h1 = soup.find("h1", {"class": "entry-title"})
+    defi_node = soup.find("div", {"class": "palabra-do-dia-definition"})
+    if h1 is None or defi_node is None:
+        raise RuntimeError(f"Failed to parse word of the day from '{word_url}'")
+    return h1.get_text(strip=True), defi_node.get_text(" ", strip=True)
 
 
 def get_wod():
@@ -129,32 +121,70 @@ def get_wod():
 
 
 def get_wod_pt(pt_br=False):
-    url = "https://dicionario.priberam.org/"
-    html = _http_get(url).text
-    soup = BeautifulSoup(html, "html.parser")
+    """Portuguese (pt-PT / pt-BR) word of the day from Priberam.
 
-    h = soup.find("div", {"class": "dp-definicao-header"})
-    if pt_br:
-        wod = h.find("span", {"class": "varpb"}).text.strip()  # pt-br
-    else:
-        wod = h.find("span", {"class": "varpt"}).text.strip()  # pt-pt
+    Two-step: home shows the word in a `.dp-widget-palavradodia` widget
+    with an `a.dp-palavradodia-card` link to the word page. The word
+    page ships the definition under the per-variant `varpt`/`varpb`
+    spans inside `.dp-definicao-header`, and the first definition line
+    inside any `.dp-definicao-linha` block.
+    """
+    base = "https://dicionario.priberam.org"
+    home = _http_get(f"{base}/").text
+    soup = BeautifulSoup(home, "html.parser")
+    widget = soup.find("div", {"class": "dp-widget-palavradodia"})
+    if widget is None:
+        raise RuntimeError(f"Failed to find Priberam WoD widget on '{base}'")
+    card = widget.find("a", {"class": "dp-palavradodia-card"})
+    if card is None or not card.get("href"):
+        raise RuntimeError(f"Failed to find Priberam WoD link on '{base}'")
+    href = card["href"]
+    word_url = href if href.startswith("http") else f"{base}/{href.lstrip('/')}"
 
-    h = soup.find("p", {"class": "ml-12 py-4 dp-definicao-linha"})
-    defi = h.find("span", {"class": "ml-4 p"}).text.split("\n")[0].strip()
+    word_html = _http_get(word_url).text
+    soup = BeautifulSoup(word_html, "html.parser")
+    header = soup.find("div", {"class": "dp-definicao-header"})
+    if header is None:
+        raise RuntimeError(f"Failed to parse Priberam WoD page '{word_url}'")
+    variant_cls = "varpb" if pt_br else "varpt"
+    span = header.find("span", {"class": variant_cls})
+    word_link = span.find("a") if span else None
+    if word_link is None:
+        raise RuntimeError(f"Failed to read '{variant_cls}' variant from '{word_url}'")
+    wod = word_link.get_text(strip=True)
+
+    defi_line = soup.find(class_="dp-definicao-linha")
+    inner = defi_line.find("span", {"class": "ml-4 p"}) if defi_line else None
+    if inner is None:
+        raise RuntimeError(f"Failed to parse Priberam definition from '{word_url}'")
+    defi = inner.get_text(" ", strip=True).split("\n")[0].strip()
     return wod, defi
 
 
 def get_wod_ca():
-    url = "https://rodamots.cat/"
-    html = _http_get(url).text
-    soup = BeautifulSoup(html, "html.parser")
-    h = soup.find("article").find("a")
-    url2 = h["href"]
-    html = _http_get(url2).text
-    soup = BeautifulSoup(html, "html.parser")
-    w = soup.find("h1", {"class": "entry-title single-title"}).text.strip()[:-1].split("[")[0].strip()
-    d = soup.find("div", {"class": "innerdef"}).find("p").text
-    return w, d
+    """Catalan word of the day from rodamots.cat.
+
+    Two-step: home page's first `<article>` link goes to the entry page.
+    The entry's `h1.entry-title` wraps the word in `span.midleline` and
+    the part-of-speech in `span.tipusgram`; the definition is the first
+    `<p>` inside `div.innerdef`.
+    """
+    home = _http_get("https://rodamots.cat/").text
+    soup = BeautifulSoup(home, "html.parser")
+    art = soup.find("article")
+    link = art.find("a") if art else None
+    if link is None or not link.get("href"):
+        raise RuntimeError("Failed to find current rodamots entry link")
+
+    entry_html = _http_get(link["href"]).text
+    soup = BeautifulSoup(entry_html, "html.parser")
+    h1 = soup.find("h1", {"class": "entry-title single-title"})
+    word_node = h1.find("span", {"class": "midleline"}) if h1 else None
+    innerdef = soup.find("div", {"class": "innerdef"})
+    defi_node = innerdef.find("p") if innerdef else None
+    if word_node is None or defi_node is None:
+        raise RuntimeError(f"Failed to parse rodamots entry '{link['href']}'")
+    return word_node.get_text(strip=True), _normalize_definition_text(defi_node.get_text())
 
 
 def get_wod_fr():

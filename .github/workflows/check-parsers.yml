@@ -1,0 +1,84 @@
+name: Check Parsers (live)
+
+# Hits every upstream WoD endpoint via the live parser and opens an issue
+# if any of them break. Runs every 48 hours.
+
+on:
+  schedule:
+    - cron: "0 7 */2 * *"  # 07:00 UTC every other day
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  live-parsers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.11"
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install ".[test]"
+
+      - name: Run live parser tests
+        id: tests
+        run: |
+          python -m pytest test/live/ -v --no-header \
+            --junitxml=parser-report.xml \
+            | tee parser-output.txt
+        continue-on-error: true
+
+      - name: Summarize failures
+        if: ${{ steps.tests.outcome == 'failure' }}
+        id: summary
+        run: |
+          # Extract FAILED test names + the assertion lines
+          {
+            echo "## Live parser failures"
+            echo ""
+            echo '```'
+            grep -E "FAILED|AssertionError|RuntimeError" parser-output.txt | head -40 || true
+            echo '```'
+            echo ""
+            echo "Full output attached as artifact \`parser-output\`."
+            echo ""
+            echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          } > issue-body.md
+          cat issue-body.md
+
+      - name: Upload parser output
+        if: ${{ steps.tests.outcome == 'failure' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: parser-output
+          path: |
+            parser-output.txt
+            parser-report.xml
+
+      - name: Open / update tracking issue
+        if: ${{ steps.tests.outcome == 'failure' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="🚨 Live WoD parser(s) failing"
+          # Find an existing open issue with the same title
+          NUMBER=$(gh issue list --state open --search "in:title \"$TITLE\"" --json number,title \
+            --jq ".[] | select(.title==\"$TITLE\") | .number" | head -1)
+          if [ -n "$NUMBER" ]; then
+            gh issue comment "$NUMBER" --body-file issue-body.md
+            echo "Updated existing issue #$NUMBER"
+          else
+            gh issue create --title "$TITLE" --body-file issue-body.md \
+              --label "bug,parser"
+          fi
+
+      - name: Re-raise failure
+        if: ${{ steps.tests.outcome == 'failure' }}
+        run: exit 1

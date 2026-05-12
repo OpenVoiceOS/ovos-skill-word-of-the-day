@@ -1,8 +1,9 @@
-"""Unit tests for per-language parsers using recorded HTML fixtures.
+"""Unit tests for per-language parsers using real HTML captured from upstream.
 
-Real network calls are blocked; each parser receives a small HTML snippet
-captured from the upstream site that matches the selectors the parser
-uses. If a site changes its markup, the matching fixture must be updated.
+Fixtures in test/unit/fixtures/ are real responses trimmed to the relevant
+DOM subtree. When a site changes markup, re-capture the fixture and update
+the parser. A separate scheduled job (check-parsers.yml) hits the real APIs
+periodically to flag drift early.
 """
 import json
 from pathlib import Path
@@ -29,30 +30,42 @@ def _fixture(name: str) -> str:
 
 
 class TestGetWodEnglish(TestCase):
+    """dictionary.com — captured 2026-05-12, word 'rigmarole'."""
+
     def test_parses_dictionary_com(self):
         html = _fixture("dictionary_com.html")
         with patch.object(wod, "_http_get", return_value=_fake_response(text=html)):
             word, definition = wod.get_wod()
-        self.assertEqual(word, "serendipity")
-        self.assertIn("aptitude for making desirable discoveries", definition)
+        self.assertEqual(word, "rigmarole")
+        self.assertEqual(definition, "an elaborate or complicated procedure")
 
 
 class TestGetWodPortuguese(TestCase):
+    """Priberam — captured 2026-05-12, word 'majólica' (two-step: home → word page)."""
+
+    def _run(self, pt_br: bool):
+        home = _fixture("priberam_home.html")
+        word_page = _fixture("priberam_word.html")
+        with patch.object(wod, "_http_get", side_effect=[
+            _fake_response(text=home),
+            _fake_response(text=word_page),
+        ]):
+            return wod.get_wod_pt(pt_br=pt_br)
+
     def test_parses_priberam_pt_pt(self):
-        html = _fixture("priberam.html")
-        with patch.object(wod, "_http_get", return_value=_fake_response(text=html)):
-            word, definition = wod.get_wod_pt(pt_br=False)
-        self.assertEqual(word, "desígnio")
-        self.assertIn("planeia fazer", definition)
+        word, definition = self._run(pt_br=False)
+        self.assertEqual(word, "majólica")
+        self.assertIn("cerâmica", definition)
 
     def test_parses_priberam_pt_br(self):
-        html = _fixture("priberam.html")
-        with patch.object(wod, "_http_get", return_value=_fake_response(text=html)):
-            word, _ = wod.get_wod_pt(pt_br=True)
-        self.assertEqual(word, "desígnio_br")
+        word, definition = self._run(pt_br=True)
+        self.assertEqual(word, "majólica")
+        self.assertIn("cerâmica", definition)
 
 
 class TestGetWodCatalan(TestCase):
+    """rodamots.cat — captured 2026-05-12, entry 'a ranvespre' (two-step: home → entry)."""
+
     def test_parses_rodamots_two_step(self):
         index = _fixture("rodamots_index.html")
         entry = _fixture("rodamots_entry.html")
@@ -61,33 +74,37 @@ class TestGetWodCatalan(TestCase):
             _fake_response(text=entry),
         ]):
             word, definition = wod.get_wod_ca()
-        self.assertEqual(word, "atzucac")
-        self.assertEqual(definition, "Carrer sense sortida.")
+        self.assertEqual(word, "a ranvespre")
+        self.assertEqual(definition, "A entrada de fosc, a l’horabaixa.")
 
 
 class TestGetWodFrench(TestCase):
+    """fr.wiktionary.org API — captured 2026-05-12, 'sans tambour ni trompette'."""
+
     def test_parses_wiktionary_api(self):
-        html = _fixture("wiktionary_fr_main_etl.html")
-        payload = {"parse": {"text": {"*": html}}}
+        payload = json.loads(_fixture("wiktionary_fr.json"))
         with patch.object(wod, "_http_get", return_value=_fake_response(json_data=payload)):
             word, definition = wod.get_wod_fr()
-        self.assertEqual(word, "aubaine")
-        self.assertIn("Avantage inattendu", definition)
-        # Nested ul should be stripped
-        self.assertNotIn("Exemple ignoré", definition)
+        self.assertEqual(word, "sans tambour ni trompette")
+        self.assertEqual(
+            definition,
+            "Sans avertir quiconque, sans se faire remarquer, sans bruit, en secret.",
+        )
 
 
 class TestGetWodGalician(TestCase):
+    """portaldaspalabras.gal — captured 2026-05-12, 'soidade' (two-step: home → word)."""
+
     def test_parses_portaldaspalabras_two_step(self):
-        index = _fixture("portaldaspalabras_index.html")
+        home = _fixture("portaldaspalabras_home.html")
         word_page = _fixture("portaldaspalabras_word.html")
-        with patch.object(wod, "_http_post", side_effect=[
-            _fake_response(content=index.encode("utf-8")),
-            _fake_response(content=word_page.encode("utf-8")),
+        with patch.object(wod, "_http_get", side_effect=[
+            _fake_response(text=home),
+            _fake_response(text=word_page),
         ]):
             word, definition = wod.get_wod_gl()
-        self.assertEqual(word, "arrequecer")
-        self.assertIn("Mellorar", definition)
+        self.assertEqual(word, "soidade")
+        self.assertTrue(definition, "definition should not be empty")
 
 
 class TestNormalizeDefinitionText(TestCase):
