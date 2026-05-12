@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.5a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.5a1) (2026-05-12)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.4a3...0.2.5a1)
+
+**Merged pull requests:**
+
+- fix\(parsers\): real HTML fixtures + repair Priberam/Galician/Catalan + live monitor [\#31](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/31) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.4a3](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.4a3) (2026-05-12)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.4a2...0.2.4a3)
