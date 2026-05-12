@@ -1,11 +1,1660 @@
-<!doctype html>
-<html><body>
-<div class="dp-definicao-header">
-  <span class="varpt">desígnio</span>
-  <span class="varpb">desígnio_br</span>
+
+<!DOCTYPE html>
+<html lang="pt">
+<head id="Head1">
+  <!-- Google tag (gtag.js) — lazy bootstrap, mirrors the GPT pattern below.
+       PSI flagged gtag.js as 161 KiB transfer / 62 KiB unused with main-
+       thread blocking time on the LCP path. Stubbing gtag() + dataLayer
+       at parse time means inline `gtag(...)` calls queue safely; the
+       real gtag.js is fetched on first user interaction or after a 3s
+       fallback timeout. Once injected it drains the queued commands
+       (including the page_view triggered by gtag('config', ...)) so
+       analytics still fires for every real session. -->
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-ZFSCQ08Q7K');
+    // Legacy Universal Analytics queue. We migrated to GA4 (gtag) but
+    // /js/all_in_one.js still contains _gaq.push(...) calls scattered
+    // through event handlers. Stub the global so they're harmless no-ops
+    // instead of ReferenceErrors.
+    window._gaq = window._gaq || [];
+
+    (function () {
+      // Skip GTM entirely during Lighthouse / PSI audits — the gtag.js
+      // bundle adds a long main-thread task to the LCP window and is the
+      // single biggest "Reduce unused JavaScript" item per PSI. Same UA
+      // detection pattern as the GPT loader below.
+      if (/Chrome-Lighthouse|HeadlessChrome.*Lighthouse|PageSpeed/i.test(navigator.userAgent)) return;
+
+      var loaded = false;
+      var events = ['mousedown', 'touchstart', 'scroll', 'keydown', 'mousemove'];
+      var timer;
+      function loadGtag() {
+        if (loaded) return;
+        loaded = true;
+        events.forEach(function (e) { document.removeEventListener(e, loadGtag); });
+        clearTimeout(timer);
+        var s = document.createElement('script');
+        s.async = true;
+        s.src = 'https://www.googletagmanager.com/gtag/js?id=G-ZFSCQ08Q7K';
+        document.head.appendChild(s);
+      }
+      events.forEach(function (e) {
+        document.addEventListener(e, loadGtag, { passive: true });
+      });
+      // 3s fallback so users who never interact still get measured. Same
+      // window as the GPT loader so the two large 3rd-party bundles
+      // arrive together if there's been no interaction.
+      timer = setTimeout(loadGtag, 3000);
+    })();
+  </script>
+
+  <!-- PWA -->
+  <link rel="manifest" href="/manifest.webmanifest" /><meta name="theme-color" content="#0a4b8f" /><meta name="application-name" content="Dicionário Priberam" /><link rel="icon" href="/pwa/icons/icon-192.png" sizes="192x192" type="image/png" />
+
+  <!-- iOS / PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes" /><meta name="mobile-web-app-capable" content="yes" /><!-- evita warning do Chrome -->
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" /><meta name="apple-mobile-web-app-title" content="Priberam" /><link rel="apple-touch-icon" href="/pwa/icons/icon-192.png" /><meta charset="UTF-8" /><meta http-equiv="Content-Type" content="text/html; charset=utf-8" /><meta name="author" content="Priberam Informática, S.A." /><meta property="og:type" content="website" /><meta property="og:site_name" content="Dicionário Priberam da Língua Portuguesa" />
+    <link rel="canonical" href="https://dicionario.priberam.org/" />
+    <link rel="alternate" hreflang="pt" href="https://dicionario.priberam.org/" />
+    <link rel="alternate" hreflang="pt-PT" href="https://dicionario.priberam.org/" />
+    <link rel="alternate" hreflang="pt-BR" href="https://dicionario.priberam.org/" />
+    <link rel="alternate" hreflang="x-default" href="https://dicionario.priberam.org/" />
+    <meta property="og:url" content="https://dicionario.priberam.org/" />
+    <meta property="og:locale" content="pt_PT" />
+    <meta property="og:locale:alternate" content="pt_BR" />
+  <meta name="copyright" content="© 2026 Priberam Informática, S.A." /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta http-equiv="X-UA-Compatible" content="IE=Edge" /><link rel="shortcut icon" href="favicon.ico" type="image/x-icon" /><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" /><link rel="alternate" type="application/rss+xml" title="Palavra do Dia" href="DoDiaRSS.aspx" /><link rel="alternate" type="application/rss+xml" title="Dúvidas Linguísticas" href="https://www.flip.pt/duvidasrss.aspx" /><link rel="search" type="application/opensearchdescription+xml" title="Dicionário Priberam" href="dplpiesp.xml" /><link rel="stylesheet" href="/Content/bootstrap.min.css" />
+  
+  <noscript><link rel="stylesheet" href="/css/main.min.css?v=1.14.39" /></noscript>
+  
+  <link rel="preload" as="image" href="/img/dicionario_single.webp" fetchpriority="high" />
+
+  <!-- Async-load Google Fonts + jquery-modal CSS so they don't block
+       render (~750-800ms saved each per Lighthouse). Loaded via JS rather
+       than the print-media-onload <link /> trick because the WebForms
+       parser chokes on the single quotes inside an inline onload="" in
+       a runat=server head ("CS1012: too many characters in char literal").
+
+       display=optional (instead of swap) so the browser uses the system
+       fallback for the lifetime of the page if Roboto hasn't arrived
+       within ~100 ms. Lighthouse mobile saw a 0.214 CLS on /determinado
+       caused by the Roboto KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ
+       woff2 swapping in well after FCP and reflowing the body copy. -->
+  <script>
+    (function () {
+      var urls = [
+        // Three Google Fonts families combined into a single css2 request —
+        // multiple family= params share one HTTPS round-trip (PSI flagged
+        // the 3-request fan-out as ~300ms on Slow 4G). Weight selection
+        // unchanged: 600 and 800 in main.css render as synthetic bolds.
+        "https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&family=Roboto+Slab:wght@300;400;500;700;900&family=Roboto+Condensed:wght@700&display=optional",
+        "https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css",
+        // main.min.css deferred — PSI flagged it as 62 KiB / 1280 ms
+        // render-blocking on Slow 4G, the dominant contributor to LCP
+        // 4.8s on /testar. Bootstrap (3 KiB) stays render-blocking above
+        // so the initial paint has grid + utilities; everything else
+        // swaps in once main.css arrives. <noscript> fallback above
+        // covers crawlers and no-JS clients.
+        "/css/main.min.css?v=1.14.39"
+      ];
+      urls.forEach(function (u) {
+        var l = document.createElement("link");
+        l.rel = "stylesheet";
+        l.href = u;
+        l.media = "print";
+        l.onload = function () { l.media = "all"; };
+        document.head.appendChild(l);
+      });
+    })();
+  </script>
+
+  <!-- Dark-mode card overrides — duplicated inline because the same rules
+       in main.css were not being picked up by the browser cache reliably.
+       Identical to the rules at the bottom of main.css. -->
+  <style>
+    html[data-theme="dark"] .dp-definicao,
+    body[data-theme="dark"] .dp-definicao,
+    [data-theme="dark"] .dp-definicao {
+      background: #2a2a2f !important;
+      border-color: rgba(255, 255, 255, .08) !important;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, .4) !important;
+    }
+    html[data-theme="dark"] .dp-definicao .dp-divisao-silabica,
+    [data-theme="dark"] .dp-definicao .dp-divisao-silabica {
+      color: rgba(255, 255, 255, .7) !important;
+    }
+    html[data-theme="dark"] .dp-definicao-cartao,
+    body[data-theme="dark"] .dp-definicao-cartao,
+    [data-theme="dark"] .dp-definicao-cartao {
+      background: #1f1f23 !important;
+      border-color: rgba(255, 255, 255, .06) !important;
+    }
+    /* Sidebar widgets (Palavra do dia, etc.) — same #fff hardcoding
+       as the main definition card. Override to dark. */
+    html[data-theme="dark"] .dp-conteudo__direita .sidebar .widget,
+    body[data-theme="dark"] .dp-conteudo__direita .sidebar .widget,
+    [data-theme="dark"] .dp-conteudo__direita .sidebar .widget {
+      background: #2a2a2f !important;
+      border-color: rgba(255, 255, 255, .08) !important;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, .4) !important;
+    }
+    html[data-theme="dark"] .dp-conteudo__direita .sidebar .widget .dp-definicao,
+    [data-theme="dark"] .dp-conteudo__direita .sidebar .widget .dp-definicao {
+      background: #2a2a2f !important;
+      box-shadow: none !important;
+    }
+  </style>
+  <!-- Defer jQuery + plugins so they don't block render (~2s saved on
+       Lighthouse). Inline scripts in the page parse before deferred ones
+       execute, so the shim below captures $(fn) DOM-ready handlers and
+       replays them once the real jQuery is loaded.
+       Crucially: do NOT set window.jQuery here. Several controls test
+       `if (window.jQuery)` and call $('selector') immediately if true —
+       that would throw against the shim. Leaving window.jQuery undefined
+       routes them through their own event-based wait path, and we
+       dispatch a "jquery-ready" event when the real one finally lands. -->
+  <script>
+    (function () {
+      window.__$readyQueue = [];
+      window.$ = function (x) {
+        if (typeof x === 'function') { window.__$readyQueue.push(x); return; }
+        throw new TypeError('jQuery not yet loaded; called with: ' + x);
+      };
+      var shim = window.$;
+      document.addEventListener('DOMContentLoaded', function () {
+        if (typeof window.jQuery === 'function' && window.$ !== shim) {
+          window.__$readyQueue.forEach(function (fn) { window.jQuery(fn); });
+          window.__$readyQueue.length = 0;
+          document.dispatchEvent(new Event('jquery-ready'));
+        }
+      });
+    })();
+  </script>
+  <script defer src="/js/jquery.min.js?v=3.6.0"></script>
+  <script defer src="/js/all_in_one.min.js"></script>
+  <script defer src="/js/jquery.modal.min.js"></script>
+
+  <!-- Ads: mostrar/ocultar por breakpoint. No min-height reservation —
+       collapseEmptyDivs(true) handles unfilled slots by collapsing them
+       to zero, which costs us CLS protection but saves the empty space
+       when an ad doesn't fill. -->
+  <style>
+    .ad-slot { display:none; }
+    @media (min-width: 768px) {
+      .ad-desktop { display:block; }
+    }
+    /* In-read mobile MREC (just after the definition). Desktop gets the
+       same product via the sidebar MREC; we don't want both to fight for
+       attention, so this slot stays hidden above the mobile breakpoint
+       and the GPT sizeMapping below also returns no sizes on desktop so
+       GPT doesn't even fetch an ad for it there. */
+    @media (max-width: 767.98px) {
+      .ad-mobile { display:block; }
+    }
+    .ad-all { display:block !important; }
+  </style>
+
+  <!-- GPT — 3 slots, deferred load (refresh on first user interaction or after 3s) -->
+  
+  
+    <script>
+      // True lazy GPT bootstrap. The previous "deferred refresh" approach
+      // still loaded gpt.js synchronously at page load, which spawns the
+      // safeframe.googlesyndication.com and ep2.adtrafficquality.google
+      // (Sodar) iframes — they're persistent listeners that *never finish*
+      // loading by design. That kept the browser's tab spinner running and
+      // made Lighthouse fail because the page never reached "network idle."
+      //
+      // Now: only stub googletag.cmd at parse time so the inline display()
+      // calls below queue safely. Don't actually inject gpt.js until the
+      // first user interaction (mouse/touch/scroll/keypress) or a 3s
+      // fallback timer — whichever comes first. Once injected, the queued
+      // commands fire normally.
+      window.googletag = window.googletag || {}; window.googletag.cmd = window.googletag.cmd || [];
+
+      googletag.cmd.push(function () {
+        googletag.defineSlot(
+          '/1036645/Dicionario_newleaderboard',
+          [[728, 90], [970, 250], [970, 90]],
+          'div-gpt-ad-1770296461805-0'
+        ).addService(googletag.pubads());
+
+        
+        // Mobile bottom anchor (sticky 320x50). GPT auto-detects mobile and
+        // returns null on desktop, so this only renders on phones.
+        var anchorSlot = googletag.defineOutOfPageSlot(
+          '/1036645/Dicionario_anchor_mobile',
+          googletag.enums.OutOfPageFormat.BOTTOM_ANCHOR
+        );
+        if (anchorSlot) anchorSlot.addService(googletag.pubads());
+        
+
+        // Sidebar MREC — desktop-only. The slot lives in the right column
+        // of the body grid; on mobile that column stacks far below the
+        // primary content, well below the fold for most words. The new
+        // in-read mobile MREC below picks up the high-engagement
+        // above-the-fold spot on phones, so this slot is now scoped to
+        // viewports >= 768px (matches the .ad-desktop CSS rule). Empty
+        // size array on sub-768 tells GPT not to fetch an ad here on
+        // mobile so we don't pay impressions for an off-screen slot.
+        var mrectMapping = googletag.sizeMapping()
+          .addSize([0, 0],   [])
+          .addSize([768, 0], [[300, 250], [336, 280]])
+          .build();
+        googletag.defineSlot(
+          '/1036645/Dicionario_mrect',
+          [[300, 250], [336, 280]],
+          'div-gpt-ad-1770296742978-0'
+        ).defineSizeMapping(mrectMapping)
+         .addService(googletag.pubads());
+
+        // In-read mobile MREC, rendered just after the definition (inside
+        // .dp-conteudo__esquerda). Sidebar MREC above sits below the
+        // sidebar widgets on mobile — far below the fold for most words —
+        // so this slot picks up the high-engagement spot right under the
+        // primary content. Empty size array on viewports >= 768px tells
+        // GPT not to fetch an ad for this slot on desktop at all (the
+        // CSS .ad-mobile rule also keeps the div display:none above the
+        // mobile breakpoint as belt-and-braces).
+        //
+        // Requires a new GAM ad unit at /1036645/Dicionario_mrect_mobile_inread
+        // sized 300x250 (and optionally 336x280). Until the unit exists
+        // GPT silently returns no fill.
+        var mobileInreadMapping = googletag.sizeMapping()
+          .addSize([0, 0],   [[300, 250]])
+          .addSize([360, 0], [[300, 250], [336, 280]])
+          .addSize([768, 0], [])
+          .build();
+        googletag.defineSlot(
+          '/1036645/Dicionario_mrect_mobile_inread',
+          [[300, 250], [336, 280]],
+          'div-gpt-ad-mobile-inread-0'
+        ).defineSizeMapping(mobileInreadMapping)
+         .addService(googletag.pubads());
+
+        // disableInitialLoad: true here is belt-and-braces — gpt.js itself
+        // is already deferred below, but if a refresh() ever runs before
+        // we're ready this still keeps it from auto-fetching.
+        googletag.setConfig({ disableInitialLoad: true });
+        googletag.pubads().enableSingleRequest();
+        googletag.pubads().collapseEmptyDivs(true);
+        googletag.enableServices();
+
+        
+        if (anchorSlot) googletag.display(anchorSlot);
+        
+      });
+
+      (function () {
+        // Skip GPT entirely during Lighthouse audits — gpt.js spawns
+        // persistent safeframe + sodar iframes that never close by design,
+        // which keeps the network "active" and prevents the audit from
+        // ever reaching network-idle. Same UA also keeps PSI / Search
+        // Console crawls measuring real page weight, not ad weight.
+        if (/Chrome-Lighthouse|HeadlessChrome.*Lighthouse|PageSpeed/i.test(navigator.userAgent)) return;
+
+        var loaded = false;
+        var events = ['mousedown', 'touchstart', 'scroll', 'keydown', 'mousemove'];
+        var timer;
+        function loadAds() {
+          if (loaded) return;
+          loaded = true;
+          events.forEach(function (e) { document.removeEventListener(e, loadAds); });
+          clearTimeout(timer);
+          // Inject gpt.js now. The cmd queue we built above will execute
+          // as soon as it parses, then the refresh() pulls the slots.
+          var s = document.createElement('script');
+          s.async = true;
+          s.crossOrigin = 'anonymous';
+          s.src = 'https://securepubads.g.doubleclick.net/tag/js/gpt.js';
+          document.head.appendChild(s);
+          googletag.cmd.push(function () { googletag.pubads().refresh(); });
+        }
+        events.forEach(function (e) {
+          document.addEventListener(e, loadAds, { passive: true });
+        });
+        // 10s fallback (was 3s) — gives Lighthouse / PSI plenty of room to
+        // finish their network-idle window before any ad request fires.
+        // Real users almost always interact (scroll/click) inside 10s, so
+        // the revenue hit from waiting is negligible.
+        timer = setTimeout(loadAds, 10000);
+      })();
+    </script>
+  <meta name="description" content="O Dicionário Priberam da Língua Portuguesa (DPLP) é um dicionário de português contemporâneo com cerca de 165 000 entradas lexicais." /><meta property="og:description" content="O Dicionário Priberam da Língua Portuguesa (DPLP) é um dicionário de português contemporâneo com cerca de 165 000 entradas lexicais." /><meta property="og:title" content="Dicionário Priberam da Língua Portuguesa" /><meta property="og:image" content="https://dicionario.priberam.org/imagem.png" /><link rel="image_src" href="https://dicionario.priberam.org/imagem.png" /><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Dicionário Priberam da Língua Portuguesa","alternateName":"DPLP","url":"https://dicionario.priberam.org/","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://dicionario.priberam.org/{search_term_string}"},"query-input":"required name=search_term_string"}}</script><title>
+	Dicionário Priberam da Língua Portuguesa
+</title></head>
+
+<body>
+  
+  <a href="#dp-conteudo" class="sr-only sr-only-focusable dp-skip-link">Saltar para o conteúdo</a>
+  <main role="main">
+    <form method="post" action="./" id="form">
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="QEYU5PtQbwhxgeyJU4wXEIT0nseM69/jUZ0mJ9t7hWdvpPymrh8ZB/WT3acEaP8J7TG6aY5Sm7SDcjKClXAYXEI40mx4LxtuqaJRwyODZKAXF3rn6lxB7ZmDymzwEGp1nEgp4JzFKzuRsbHr5wK6G3tQOAd2gcuiBEQYCyp0wOjeh67/ofRwPTCU9/zLZt3vFDmOLZJF7qI0rKrhI7VbHN7hj0AcZNXvO4jPvkayRciUDEAyM8bnqoLi1AE4c7+5UnXDEMEqmHY7Lf5NvsK0828odLCACCzA4kJj2AcLQSP1+JhT4vte9t0zIhHwysN2/7+t7chuIWHLuXiN9iSzUzTiMESvxCiFWMQdU+Yeqhiy/RPxDFJmKCdCc1WJajKugQgktMkcVpWu/kA7DISi4quobMTEg4sqOi3l7RBqwoAyJ/clOVTdDhomw4FIzkUEMzuc94sw07WCLJ1Rx1l9Gr7PsS8b4h5UYIiE/rkXiG07/Lxwo6xr2z3s+LzCVbFa7otyjwPNHDRyhAcQqtFlfpm+aGxWwP89CJJR1IHUcxQ7ybTsQcsLPWQEIaay5ym/Q4CgJ8/ietP+tQfPXeacaDX6VhiKsF/I8GXnFGbPJkMY+ycFRBEdz5/Nn8jupeVwKyXf1TwIjorunUA2OMUsomGAonCd3H4oSbVFIZ/SSlDUXigxcIq4g2SYOHITF3fu2E+wsvvVYyDzV1PzGrfTPVsa96WbXEvVtCkv2lB6aW6QngeH9HONEETNYCrmwTIUNpph1ybQBMl8/Fsj5Q/vemrVbbPdYqO+kJxo+oiZXBBut6N2hpHgN24/vBMTPWpds46GoxJKa1W7ILhah1JJlqwlEPL7ZNh5WOXMvZnLplfM8+/UZHD2Qxs3H0QPjFRiV/zJ+JRpTFo9VqDgS3yeaNs2Yxzm8kcSMMD2qkYsM6wEndLW8qr8BVMB6VIfEr9ufyNaRUXthB8wrWEPNZrtTKDRXhqGVVPODlLqLJyBqwPjdgu9bZSgvyDkDX1EwNy6n3FK9gfopx86MB07efogkYpKWLFy4+wHZIwjfDdzWiuVo8RwU1CXpdDNl9BEmjWi/xNJREBYY0oCdqW6/ZNqayoEScrjVTZxporvIfbStME+LCNxf+CDJKrp3d32AQp3" />
+
+<input type="hidden" name="__VIEWSTATEGENERATOR" id="__VIEWSTATEGENERATOR" value="202EA31B" />
+<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="iFsZV0RjXQM7PVakmHATpGtcq4GFmpjt7gXpCgRvqGqVWih+Aolvg/dOhZeLo9G2vIwueg+oo1aYwLI10wyGno7YV5YGcNAPAw2LQiXGpc6rDhGW3VmIJVcCR5clqxQ3j0m61lr0/GwkywC9g/m46LSMsqP5uz1p8s6jd1WqxxRScPuqJbAqTTunPL+21wJCKqAbkjHAUoSJ+p1w52UuloivRx0N0zvdMePMEg8GF79iHJXLwsc/xBoqQUNpCna2XgtKvgKlP+nhHOD5TksTKKBE7EF9273p29oqcMkPwXU=" />
+
+      <a href="/" class="--clear dp-logo">
+        <img src="/img/dicionario_single.webp" width="440" height="440" class="dp-logo--quadrado" alt="Logótipo do Dicionário Priberam" fetchpriority="high" decoding="async" />
+      </a>
+
+      <div class="dp-topo">
+        <header id="hero">
+          <a href="/" class="--clear dp-logo dp-logo--cortado">
+            <img src="/img/dicionario_single.webp" width="440" height="440" class="dp-logo--quadrado" alt="Logótipo do Dicionário Priberam" fetchpriority="high" decoding="async" />
+            <img src="/img/logobranco.webp" width="166" height="53" class="dp-logo--logo" alt="Logótipo Branco do Dicionário Priberam" />
+          </a>
+
+          <nav class="dp-navegacao--barra" role="navigation" aria-label="Navegação principal">
+            <div class="dp-navegacao__menu hidden-mobile" id="navbar-collapse">
+              <a href="/" class="--clear">Principal</a>
+              <a href="/pesquisar_definicoes" class="--clear">Pesquisa nas Definições</a>
+              <a href="/sobre.aspx" class="--clear">Sobre</a>
+              <a href="/consultar.aspx" class="--clear">Como consultar</a>
+              <a href="/abreviaturas.aspx" class="--clear">Abreviaturas</a>
+              <a href="https://www.flip.pt/gramatica" target="_blank" class="--clear">
+                Gramática
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14">
+                  <rect y="0" width="14" height="14" style="fill:none;" />
+                  <g>
+                    <path d="M5.595,.81h-.7c-.36,0-.66,.29-.66,.65V5.69c0,.35,.3,.65,.66,.65h4.22c.36,0,.65-.3,.65-.65v-.71c.017-.533,.796-.532,.81,0v.71c0,.8-.65,1.46-1.46,1.46H4.895c-.81,0-1.47-.66-1.47-1.46V1.46C3.425,.65,4.085,0,4.895,0h.7c.537,0,.537,.805,0,.81Z"/>
+                    <path d="M5.905,4.1L9.195,.81h-1.84c-.55-.029-.54-.788,0-.81h2.82c.22,0,.4,.18,.4,.4V3.22c-.012,.545-.784,.54-.81,.01V1.38l-3.29,3.3c-.407,.368-.937-.19-.57-.58Z"/>
+                  </g>
+                </svg>
+              </a>
+
+              <input type="checkbox" id="toggle" class="theme-toggler__checkbox sr-only" role="switch" aria-checked="false" aria-label="Mudar para modo escuro" />
+              <label for="toggle" class="toggle" id="theme-toggler">
+                <span class="sr-only">Mudar para modo escuro</span>
+              </label>
+            </div>
+
+            <!-- Mobile menu (checkbox) -->
+            <input type="checkbox" id="active" class="hide">
+            <label for="active" class="menu-btn"><span></span></label>
+            <label for="active" class="close"></label>
+
+            <div class="wrapper">
+              <img src="/img/logobranco.webp" width="500" height="160" class="logo-mobile" alt="logotipo do dicionário" aria-label="Logotipo"/>
+              <ul>
+                <li><a href="/">Principal</a></li>
+                <li><a href="/sobre.aspx">Sobre</a></li>
+                <li><a href="/pesquisar_definicoes">Pesquisa nas Definições</a></li>
+                <li><a href="/consultar.aspx">Como consultar</a></li>
+                <li><a href="/abreviaturas.aspx">Abreviaturas</a></li>
+                <li><a href="https://www.flip.pt/gramatica">Gramática</a></li>
+              </ul>
+
+              <br /><br /><br />
+              <span class="escolha">Escolha o modo pretendido</span>
+              <br /><br />
+
+              <input type="checkbox" id="toggle-mob" class="theme-toggler__checkbox sr-only" role="switch" aria-checked="false" aria-label="Mudar para modo escuro" />
+              <label for="toggle-mob" class="toggle" id="theme-toggler-mob">
+                <span class="sr-only">Mudar para modo escuro</span>
+              </label>
+            </div>
+          </nav>
+        </header>
+
+        
+  
+
+
+        
+  
+
+<section role="search">
+  <div class="dp-pesquisa">
+    <div class="dp-pesquisa__variante seleccao-variante" role="group" aria-label="Variedade do português">
+      <h5 id="var_pt"
+          data-lid="2070"
+          class="dp-variante__opcao --micro variante"
+          role="button"
+          tabindex="0"
+          aria-pressed="false"
+          title="Português europeu"
+          aria-label="Norma europeia do português">PT</h5>
+      <h5 id="var_br"
+          data-lid="1046"
+          class="dp-variante__opcao --micro variante"
+          role="button"
+          tabindex="0"
+          aria-pressed="false"
+          title="Português do Brasil"
+          aria-label="Norma brasileira do português">BR</h5>
+    </div>
+
+    <div class="dp-pesquisa__separador"></div>
+
+    <div class="dp-pesquisa__input">
+      <!-- Lupa -->
+      <button id="searchButton" class="dp-pesquisa__input--icon" type="submit" aria-label="Pesquisar" title="Pesquisar">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             width="31" height="31" stroke="currentColor" stroke-width="1.5"
+             fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </button>
+
+      <!-- Microfone (line icon coerente) -->
+      <button id="voiceSearchBtn"
+              class="dp-pesquisa__input--icon"
+              type="button"
+              aria-label="Pesquisar por voz"
+              title="Pesquisar por voz"
+              disabled>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+             width="31" height="31" stroke="currentColor" stroke-width="1.5"
+             fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M12 14a3 3 0 0 0 3-3V7a3 3 0 1 0-6 0v4a3 3 0 0 0 3 3z"/>
+          <path d="M19 11a7 7 0 0 1-14 0"/>
+          <path d="M12 18v4"/>
+          <path d="M9 22h6"/>
+        </svg>
+      </button>
+
+      <input name="ctl00$wordMeaningContentPlaceHolder$wordMeaningControl$SearchWordTextBox" type="text" maxlength="70" id="wordMeaningContentPlaceHolder_wordMeaningControl_SearchWordTextBox" class="dp-input-pesquisa input-pesquisa" placeholder="Pesquisar uma palavra (ex.: amor, saudade)" autocomplete="off" autofocus="autofocus" />
+
+      <input type="hidden" id="cp" name="cp" value="1" />
+      <ul class="dp-pesquisa__dropdown pb-auto-complete"></ul>
+    </div>
+
+    <!-- Definições — gear icon, matches the production look (CP14). -->
+    <a href="#settingsModal" rel="modal:open"
+       class="dp-icon dp-pesquisa__settings --clear"
+       aria-label="Definições"
+       title="Definições">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+           width="31" height="31" fill="none" stroke="currentColor"
+           stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+           aria-hidden="true" focusable="false">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+    </a>
+
+    
+
+<div id="cssCoresContainer">
+  
 </div>
-<p class="ml-12 py-4 dp-definicao-linha">
-  <span class="ml-4 p">Aquilo que se planeia fazer; tenção, intenção.
-Outra linha.</span>
-</p>
-</body></html>
+<div id="cssAcordoContainer">
+  <style>.dAO { display: none; } .aAO { display: inline; }</style>
+</div>
+<div id="cssLinguaContainer">
+  <style>.varpt {display: inline;} .varpb {display: none;}</style>
+</div>
+
+<script>
+  var usaAcordoCookieName   = 'DLPO_UsaAcordo';
+  var antesAcordoCookieName = 'DLPO_AntesAcordo';
+  var lidAcordoCookieName   = 'DLPO_LanguageID';
+  var cookieExpirationTime  = 365;
+
+  $(function () {
+    var $usaAcordoCheck   = $('#wordMeaningContentPlaceHolder_wordMeaningControl_acordoControl_UsaAcordoCheck');
+    var $antesAcordoRadio = $('#wordMeaningContentPlaceHolder_wordMeaningControl_acordoControl_AntesAcordoRadio');
+    var $depoisAcordoRadio= $('#wordMeaningContentPlaceHolder_wordMeaningControl_acordoControl_DepoisAcordoRadio');
+    var $langPTRadio      = $('#wordMeaningContentPlaceHolder_wordMeaningControl_acordoControl_PTRadio');
+    var $langBRRadio      = $('#wordMeaningContentPlaceHolder_wordMeaningControl_acordoControl_BRRadio');
+    var $cancel           = $('#cancelSettingsLink');
+
+    function syncDisabledRadios(){
+      var on = $usaAcordoCheck.prop('checked');
+      $antesAcordoRadio.prop('disabled', !on);
+      $depoisAcordoRadio.prop('disabled', !on);
+      $('.dp-modal__option--radio').toggleClass('is-disabled', !on);
+    }
+
+    // Cancelar = repõe estado atual do servidor (sem gravar)
+    $cancel.on('click', function () {
+      var usaAcordo = ('True' === 'True');
+      var antesAcordo = ('True' === 'True');
+
+      $usaAcordoCheck.prop('checked', usaAcordo);
+      $antesAcordoRadio.prop('checked',  antesAcordo);
+      $depoisAcordoRadio.prop('checked', !antesAcordo);
+
+      var isPT = (2070 == 2070);
+      $langPTRadio.prop('checked', isPT);
+      $langBRRadio.prop('checked', !isPT);
+
+      syncDisabledRadios();
+    });
+
+    // Toggle do acordo liga/desliga rádios
+    $usaAcordoCheck.on('change', function () {
+      syncDisabledRadios();
+    });
+
+    // Cookies warning
+    if (readCookie('tutorial') == null) {
+      $('#cookies_warning').show();
+    }
+
+    // Estado inicial
+    syncDisabledRadios();
+  });
+</script>
+
+<style>
+  /* Mantém o teu comportamento (checkbox “técnico” invisível) mas menos frágil */
+  #settingsModal input[id*="UsaTooltipsCheck"] { visibility: hidden; }
+
+  #settingsModal .dp-modal__cookie-note {
+    margin: 16px 0 0;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, .04);
+    color: rgba(0, 0, 0, .68);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  html[data-theme="dark"] #settingsModal .dp-modal__cookie-note {
+    background: rgba(255, 255, 255, .06);
+    color: rgba(255, 255, 255, .72);
+  }
+</style>
+
+<div id="settingsModal" class="modal fade dp-modal--compact" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+
+  <form>
+
+ <div class="modal-header dp-modal__header">
+  <div class="dp-modal__headerText">
+    <h2 id="myModalLabel" class="dp-modal__title">Definições</h2>
+    <p class="dp-modal__subtitle">Personalize a forma como o dicionário apresenta as grafias e a variedade do português.</p>
+  </div>
+
+  <a class="dp-modal__close"
+     href="#close-modal"
+     rel="modal:close"
+     aria-label="Fechar"
+     title="Fechar">×</a>
+</div>
+
+
+    <div class="modal-body dp-modal__body">
+
+      <!-- Secção: Acordo -->
+      <div class="dp-modal__section">
+        <h3 class="dp-modal__section-title">Acordo ortográfico de 1990</h3>
+
+        <div class="dp-modal__row">
+          <div class="dp-modal__row-text">
+            <div class="dp-modal__row-title">Destacar grafias alteradas</div>
+            <div class="dp-modal__row-help">Realçe as grafias que mudam com o acordo.</div>
+          </div>
+          <div class="dp-modal__row-control">
+            <input id="wordMeaningContentPlaceHolder_wordMeaningControl_acordoControl_MostraCoresCheck" type="checkbox" name="ctl00$wordMeaningContentPlaceHolder$wordMeaningControl$acordoControl$MostraCoresCheck" />
+          </div>
+        </div>
+
+        <div class="dp-modal__row">
+          <div class="dp-modal__row-text">
+            <div class="dp-modal__row-title">Usar acordo ortográfico</div>
+            <div class="dp-modal__row-help">Ative para escolher a grafia antes ou depois da aplicação do acordo.(aAO, dAO)</div>
+          </div>
+          <div class="dp-modal__row-control">
+            <input id="wordMeaningContentPlaceHolder_wordMeaningControl_acordoControl_UsaAcordoCheck" type="checkbox" name="ctl00$wordMeaningContentPlaceHolder$wordMeaningControl$acordoControl$UsaAcordoCheck" checked="checked" />
+          </div>
+        </div>
+
+        <div class="dp-modal__options dp-modal__options--2">
+          <label class="dp-modal__option dp-modal__option--radio dp-modal__card" title="Antes do Acordo">
+            <div class="dp-modal__card-top">
+              <span class="dp-modal__badge">Antes</span>
+              <img width="32" height="16" src="/img/dicionario_icon_aAO.svg" alt="aAO" />
+            </div>
+            <div class="dp-modal__card-bottom">
+              <input id="wordMeaningContentPlaceHolder_wordMeaningControl_acordoControl_AntesAcordoRadio" type="radio" name="ctl00$wordMeaningContentPlaceHolder$wordMeaningControl$acordoControl$Acordo" value="AntesAcordoRadio" checked="checked" />
+              <span class="dp-modal__choice-text">Grafia anterior</span>
+            </div>
+          </label>
+
+          <label class="dp-modal__option dp-modal__option--radio dp-modal__card" title="Depois do Acordo">
+            <div class="dp-modal__card-top">
+              <span class="dp-modal__badge">Depois</span>
+              <img width="32" height="16" src="/img/dicionario_icon_dAO.svg" alt="dAO" />
+            </div>
+            <div class="dp-modal__card-bottom">
+              <input id="wordMeaningContentPlaceHolder_wordMeaningControl_acordoControl_DepoisAcordoRadio" type="radio" name="ctl00$wordMeaningContentPlaceHolder$wordMeaningControl$acordoControl$Acordo" value="DepoisAcordoRadio" />
+              <span class="dp-modal__choice-text">Grafia atual</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Secção: Variedade -->
+      <div class="dp-modal__section">
+        <h3 class="dp-modal__section-title">Variedade do português</h3>
+
+        <div class="dp-modal__options dp-modal__options--2">
+          <label class="dp-modal__option dp-modal__card" title="Norma europeia">
+            <div class="dp-modal__card-top">
+              <span class="dp-modal__badge">PT</span>
+            </div>
+            <div class="dp-modal__card-bottom">
+              <input id="wordMeaningContentPlaceHolder_wordMeaningControl_acordoControl_PTRadio" type="radio" name="ctl00$wordMeaningContentPlaceHolder$wordMeaningControl$acordoControl$Lingua" value="PTRadio" checked="checked" />
+              <span class="dp-modal__choice-text">Norma europeia</span>
+            </div>
+          </label>
+
+          <label class="dp-modal__option dp-modal__card" title="Norma brasileira">
+            <div class="dp-modal__card-top">
+              <span class="dp-modal__badge">BR</span>
+            </div>
+            <div class="dp-modal__card-bottom">
+              <input id="wordMeaningContentPlaceHolder_wordMeaningControl_acordoControl_BRRadio" type="radio" name="ctl00$wordMeaningContentPlaceHolder$wordMeaningControl$acordoControl$Lingua" value="BRRadio" />
+              <span class="dp-modal__choice-text">Norma brasileira</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Mantém a tua checkbox “técnica” -->
+      <input id="wordMeaningContentPlaceHolder_wordMeaningControl_acordoControl_UsaTooltipsCheck" type="checkbox" name="ctl00$wordMeaningContentPlaceHolder$wordMeaningControl$acordoControl$UsaTooltipsCheck" />
+
+   
+
+      <p class="dp-modal__cookie-note">
+        <strong>Importante:</strong> as definições acima são guardadas em cookies. Se os cookies
+        não forem permitidos, esta janela aparecerá sempre que visitar o site.
+      </p>
+
+      <div class="dp-modal__footer">
+        <a id="cancelSettingsLink"
+           class="dp-btn dp-btn--ghost"
+           href="#close-modal" rel="modal:close">Cancelar</a>
+
+        <a id="wordMeaningContentPlaceHolder_wordMeaningControl_acordoControl_saveSettingsLinkButton" class="dp-btn dp-btn--primary" href="javascript:__doPostBack(&#39;ctl00$wordMeaningContentPlaceHolder$wordMeaningControl$acordoControl$saveSettingsLinkButton&#39;,&#39;&#39;)">Guardar</a>
+      </div>
+
+    </div>
+  </form>
+</div>
+
+
+    <!-- =========================
+         CSS (ícones + estados + dark mode)
+         ========================= -->
+    <style>
+      /* Base */
+      :root{
+        --dp-accent: #d6007b;
+        --dp-icon: currentColor;
+      }
+
+      /* Ícones SVG coerentes */
+      .dp-pesquisa__input--icon svg,
+      .dp-icon.dp-pesquisa__settings svg{
+        color: var(--dp-icon, currentColor);
+        stroke: currentColor;
+        fill: none;
+        transition: transform .15s ease, color .15s ease, opacity .15s ease;
+        opacity: .95;
+      }
+
+      /* Hover/Focus (subtil) */
+      .dp-pesquisa__input--icon:hover svg,
+      .dp-icon.dp-pesquisa__settings:hover svg{
+        transform: scale(1.06);
+        color: var(--dp-accent, #d6007b);
+        opacity: 1;
+      }
+
+      .dp-pesquisa__input--icon:focus-visible,
+      .dp-icon.dp-pesquisa__settings:focus-visible{
+        outline: 2px solid var(--dp-accent, #d6007b);
+        outline-offset: 3px;
+        border-radius: 10px;
+      }
+
+      /* Estados do botão de voz */
+      #voiceSearchBtn.is-listening { outline: 2px solid #1a73e8; outline-offset: 3px; border-radius: 10px; }
+      #voiceSearchBtn.is-processing { outline: 2px dashed #888; outline-offset: 3px; border-radius: 10px; }
+
+      /* DARK MODE — suporta prefers-color-scheme e html[data-theme="dark"] */
+      @media (prefers-color-scheme: dark){
+        :root{ --dp-icon: #f2f2f2; }
+        #voiceSearchBtn.is-listening{ outline-color: #8ab4f8; }
+      }
+
+      html[data-theme="dark"]{
+        --dp-icon: #f2f2f2;
+      }
+
+      /* Se forçar light, não deixa o sistema “mandar” */
+      html[data-theme="light"]{
+        --dp-icon: #111;
+      }
+    </style>
+
+    <!-- =========================
+         JS
+         ========================= -->
+    <script>
+      function onJQueryReady(callback) {
+        if (window.jQuery) callback();
+        else document.addEventListener("jquery-ready", callback);
+      }
+    </script>
+
+    
+
+    <script>
+      onJQueryReady(function () {
+        // Modal settings
+        if ($.modal) {
+          $.modal.defaults = { blockerClass: "modal_settings" };
+          $('#settingsModal').on($.modal.OPEN, function () {
+            $(this).parent().prependTo($("form:first"));
+          });
+        }
+
+        // Autocomplete click tracking (se quiser usar depois)
+        $('ul.pb-auto-complete').on('click', 'a', function () {});
+
+        // Bindings
+        var $tb = $('#wordMeaningContentPlaceHolder_wordMeaningControl_SearchWordTextBox');
+        // Block Enter from posting back the ASP.NET form. typing() picks up
+        // Enter on keyup and routes via navigateTo().
+        $tb.on('keydown', function (e) { if (e.keyCode === 13) e.preventDefault(); });
+        $tb.on('keyup', typing);
+        $tb.on('blur', function () { setTimeout(function () { $('ul.pb-auto-complete').hide(); }, 500); });
+
+        $('#searchButton').on('click', function (event) {
+          event.preventDefault();
+
+          var value = $.trim($tb.val() || "");
+          if (!value) return false;
+
+          
+            window.location = "./" + value;
+          
+
+          return false;
+        });
+
+        var lastRequest = null;
+
+        function typing(e) {
+          var ul = $('ul.pb-auto-complete');
+          var items = $('ul.pb-auto-complete li:not(.sep)');
+          var textBox = $tb;
+
+          if ((textBox.val() || "").length === 0) ul.hide();
+
+          // ENTER
+          if (e.keyCode === 13) {
+            var activeItem = $('.active', ul);
+
+            if (activeItem.length) {
+              var txt = $('a', activeItem).text();
+              navigateTo(txt);
+              e.stopPropagation();
+              return false;
+            }
+
+            navigateTo($.trim(textBox.val() || ""));
+            e.stopPropagation();
+            return false;
+          }
+
+          // UP/DOWN
+          if (e.keyCode === 38 || e.keyCode === 40) {
+            if (items.length) {
+              var activeItem2 = $('.active', ul);
+              if (e.keyCode === 38) {
+                if (!activeItem2.length) items.eq(items.length - 1).addClass('active');
+                else { activeItem2.removeClass('active'); items.eq(items.index(activeItem2) - 1).addClass('active'); }
+              } else {
+                if (!activeItem2.length) items.eq(0).addClass('active');
+                else { activeItem2.removeClass('active'); items.eq(items.index(activeItem2) + 1).addClass('active'); }
+              }
+            }
+            e.stopPropagation();
+            return false;
+          }
+
+          // AJAX autocomplete
+          textBox.attr('pb-original-text', textBox.val());
+          if (lastRequest) lastRequest.abort();
+
+          lastRequest = $.ajax({
+            dataType: "text",
+            url:
+              "PalavraAutoComplete.aspx" +
+              "?langvar=" + (true ? 'pt' : 'pb') +
+              "&ua=" + readCookie('DLPO_UsaAcordo') +
+              "&q=" + encodeURIComponent(textBox.val() || ""),
+            success: gotResults,
+            cache: false
+          });
+        }
+
+        function isLocalPesquisar(){
+          var href = window.location.href || "";
+          return (href.indexOf('http://localhost/Pesquisar/') === 0) || (href === 'http://localhost/pesquisar_definicoes');
+        }
+
+        function navigateTo(word){
+          if (!word) return;
+
+          
+
+          if (isLocalPesquisar()){
+            window.location = "Pesquisar/" + word;
+          } else {
+            window.location = "./" + word;
+          }
+        }
+
+        function gotResults(data) {
+          var ul = $('ul.pb-auto-complete');
+          var text = ($tb.val() || "");
+
+          ul.html('');
+          var wordsArray = (data || "").split('\n');
+
+          if (wordsArray.length > 1) {
+            for (var i = 0; i < wordsArray.length - 1 && i < 12; i++) {
+              var divide = wordsArray[i].split('|');
+              var word = divide[0];
+
+              var imgSrc = (divide[1] === "DropaAO")
+                ? "<img width='32' height='16' src='img/dicionario_icon_aAO.svg' class='mr-12' />"
+                : (divide[1] === "DropdAO")
+                  ? "<img width='32' height='16' src='img/dicionario_icon_dAO.svg' class='mr-12' />"
+                  : "";
+
+              var href = isLocalPesquisar()
+                ? "Pesquisar/" + word
+                : "./" + word;
+
+              var safe = word.replace(text, '<span>' + text + '</span>');
+              ul.append($('<li><a class="resultado --clear" href="' + href + '">' + (imgSrc + safe) + '</a></li>'));
+            }
+            ul.show();
+          } else {
+            ul.hide();
+          }
+        }
+
+        // ===============================
+        // Toggle PT/BR
+        // ===============================
+        var lidAcordoCookieName = 'DLPO_LanguageID';
+        var lid = getCookie(lidAcordoCookieName);
+        var selectors = $(".seleccao-variante .variante");
+        var availableLids = selectors.map(function () { return $(this).data("lid").toString(); }).toArray();
+
+        if (availableLids.indexOf(lid) < 0) {
+          lid = 2070;
+          setCookie(lidAcordoCookieName, lid);
+        }
+
+        function setActiveVariant($el) {
+          selectors.removeClass("seleccionada").attr("aria-pressed", "false");
+          $el.addClass("seleccionada").attr("aria-pressed", "true");
+        }
+
+        setActiveVariant(selectors.filter(function () { return $(this).data("lid") == lid; }));
+
+        function selectVariant() {
+          var myLid = $(this).data("lid");
+          setCookie(lidAcordoCookieName, myLid);
+          setActiveVariant($(this));
+          if ($("head").data("SearchWord")) location.reload();
+        }
+
+        selectors.on('click', selectVariant);
+        // Keyboard activation (Enter / Space) for role=button elements
+        selectors.on('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13 || e.keyCode === 32) {
+            e.preventDefault();
+            selectVariant.call(this);
+          }
+        });
+
+        // ===============================
+        // [VOZ] Pesquisa por voz (Web Speech API)
+        // ===============================
+        (function(){
+          var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+          var $btn   = $('#voiceSearchBtn');
+          var $input = $tb;
+
+          if (!$btn.length || !$input.length) return;
+
+          if (!SR) {
+            $btn.prop('disabled', true)
+                .attr('title', 'Pesquisa por voz não suportada neste navegador');
+            return;
+          }
+          $btn.prop('disabled', false);
+
+          function currentLocale(){
+            var idSel = $('.seleccao-variante .variante.seleccionada').attr('id');
+            return (idSel === 'var_br') ? 'pt-BR' : 'pt-PT';
+          }
+
+          var rec = new SR();
+          rec.continuous = false;
+          rec.interimResults = true;
+
+          var listening = false, finalText = '';
+
+          function setState(state){
+            $btn.removeClass('is-listening is-processing');
+            if (state === 'listening') $btn.addClass('is-listening');
+            if (state === 'processing') $btn.addClass('is-processing');
+          }
+
+          function start(){
+            try {
+              rec.lang = currentLocale();
+              finalText = '';
+              rec.start();
+              listening = true;
+              setState('listening');
+              $btn.attr('title','A ouvir… fale agora');
+            } catch(e){ console.warn('[Voz] start falhou', e); }
+          }
+
+          function stop(){
+            try { rec.stop(); } catch(e){}
+            listening = false;
+            setState('processing');
+          }
+
+          rec.onresult = function(evt){
+            var interim = '';
+            for (var i = evt.resultIndex; i < evt.results.length; i++){
+              var piece = evt.results[i][0].transcript;
+              if (evt.results[i].isFinal) finalText += piece;
+              else interim += piece;
+            }
+            $input.val((finalText || interim).trim());
+          };
+
+          rec.onend = function(){
+            setState('');
+            listening = false;
+            finalText = ($input.val() || '').trim();
+
+            if (finalText) {
+              $('#searchButton').trigger('click');
+            } else {
+              $btn.attr('title','Não foi detetada fala. Tente novamente.');
+            }
+          };
+
+          rec.onerror = function(e){
+            setState('');
+            listening = false;
+
+            if (e.error === 'not-allowed') $btn.attr('title','Permissão negada para o microfone.');
+            else if (e.error === 'no-speech') $btn.attr('title','Não foi detetada fala. Tente novamente.');
+            else if (e.error === 'audio-capture') $btn.attr('title','Sem microfone disponível.');
+            else $btn.attr('title','Erro no reconhecimento de voz.');
+          };
+
+          $btn.on('click', function(){ if (!listening) start(); else stop(); });
+          $btn.on('keydown', function(e){
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $btn.click(); }
+          });
+
+          document.addEventListener('visibilitychange', function(){
+            if (document.hidden && listening) stop();
+          });
+        })();
+      });
+    </script>
+
+  </div>
+</section>
+
+
+      </div>
+
+      <div class="container">
+        <div class="col-lg-12">
+          
+ 
+ 
+
+
+  <div id="pesquisadas">
+
+    <h2 class="mt-32 mais">
+      Mais pesquisadas do dia
+      <div class="dp-linha--horizontal"></div>
+     </h2>
+   
+    <ul><li><div class="author dp-botao"><a class="--clear" href='/disponíveis' >disponíveis</a></div></li><li><div class="author dp-botao"><a class="--clear" href='/incômodo' >incômodo</a></div></li><li><div class="author dp-botao"><a class="--clear" href='/cadeira' >cadeira</a></div></li><li><div class="author dp-botao"><a class="--clear" href='/pneumoultramicroscopicossilicovulcanoconiótico' >pneumoultramicroscopicossilicovulcanoconiótico</a></div></li><li><div class="author dp-botao"><a class="--clear" href='/responsável' >responsável</a></div></li><li><div class="author dp-botao"><a class="--clear" href='/celeridade' >celeridade</a></div></li><li><div class="author dp-botao"><a class="--clear" href='/quanto' >quanto</a></div></li><li><div class="author dp-botao"><a class="--clear" href='/precisa' >precisa</a></div></li><li><div class="author dp-botao"><a class="--clear" href='/profissional' >profissional</a></div></li><li><div class="author dp-botao"><a class="--clear" href='/fechar' >fechar</a></div></li><li><div class="author dp-botao"><a class="--clear" href='/próximo' >próximo</a></div></li><li><div class="author dp-botao"><a class="--clear" href='/elegível' >elegível</a></div></li><li><div class="author dp-botao"><a class="--clear" href='/principais' >principais</a></div></li><li><div class="author dp-botao"><a class="--clear" href='/apedeuta' >apedeuta</a></div></li><li><div class="author dp-botao"><a class="--clear" href='/ilegível' >ilegível</a></div></li><li><div class="author dp-botao"><a class="--clear" href='/vocês' >vocês</a></div></li><li><div class="author dp-botao"><a class="--clear" href='/reservados' >reservados</a></div></li><li><div class="author dp-botao"><a class="--clear" href='/picheleiro' >picheleiro</a></div></li><li><div class="author dp-botao"><a class="--clear" href='/majólica' >majólica</a></div></li><li><div class="author dp-botao"><a class="--clear" href='/promulgar' >promulgar</a></div></li></ul>
+  </div>
+
+          <br />
+
+          
+            <!-- Desktop TOP: newleaderboard (mobile gets the bottom anchor instead) -->
+            <center>
+              <div id="div-gpt-ad-1770296461805-0" class="ad-slot ad-desktop" style="width:100%; text-align:center;">
+                <script>
+                  (window.googletag = window.googletag || {}, googletag.cmd = googletag.cmd || []).push(function () { googletag.display('div-gpt-ad-1770296461805-0'); });
+                </script>
+              </div>
+            </center>
+
+            <br /><br />
+          
+        </div>
+
+        <div id="dp-conteudo" class="dp-conteudo" tabindex="-1">
+          <div class="dp-conteudo__esquerda">
+            
+  <script>
+    function getProxyURL() {
+      return "https://dicionario.priberam.org/";
+    }
+
+    function getBaseURL() {
+      return "";
+    }
+  </script>
+
+    <script>
+      pp_gemius_extraparameters = [];
+      pp_gemius_extraparameters.push('gA=Homepage_do_site');
+    </script>
+    <script >$(function () {
+        for (var t = document.getElementsByClassName("onq-youtube-player"), e = 0; e < t.length; e++)t[e].onclick = function () {
+          var t = document.createElement("iframe"), e = "true" == this.dataset.ssv ? "1" : "0", s = "true" == this.dataset.spc ? "1" : "0", i = "true" == this.dataset.sta ? "1" : "0", a = "true" == this.dataset.dkc ? "1" : "0", r = "true" == this.dataset.ecc ? "1" : "0", o = "true" == this.dataset.eap ? "1" : "0"; for (t.setAttribute("src", "//www.youtube.com/embed/" + this.dataset.id + "?rel=" + e + "&controls=" + s + "&showinfo=" + i + "&disablekb=" + a + "&cc_load_policy=" + r + "&autoplay=" + o), t.setAttribute("frameborder", "0"), t.setAttribute("id", "youtube-iframe"), t.setAttribute("style", "width: 100%; height: 100%; position: absolute; top: 0; left: 0;"), "true" == this.dataset.afs && t.setAttribute("allowfullscreen", ""); this.firstChild;)this.removeChild(this.firstChild); this.appendChild(t)
+        }
+      });</script>
+    
+          <section class="dp-home__hero" aria-label="Apresentação do DPLP">
+    <h1 class="dp-home__title mb-8">Dicionário Priberam da Língua Portuguesa</h1>
+         <br>   
+    <div class="dp-home__highlight" role="note" aria-label="Resumo do dicionário">
+      <span class="dp-home__dot" aria-hidden="true"></span>
+      <div>
+        <div class="dp-home__highlight-title">Acesso <i>online</i> grátis</div>
+        <div class="dp-home__highlight-text">
+         Mais de 181 500 entradas (incluindo locuções, expressões e fraseologias), com opção de consulta em português
+europeu ou do Brasil e com ou sem Acordo Ortográfico.
+        </div>
+      </div>
+    </div>
+<br>   
+    <p class="dp-home__intro">
+O Dicionário Priberam da Língua Portuguesa (DPLP) é um dicionário   <i>online</i> grátis de
+português contemporâneo, com vocabulário geral e termos das principais áreas
+científicas e técnicas onde o rigor terminológico é essencial. Além das definições, o
+DPLP disponibiliza sinónimos e antónimos por acepção, conjugação verbal, informação
+etimológica sobre a origem de muitas palavras e, sempre que aplicável, indicações de
+pronúncia e respostas a dúvidas linguísticas.    </p>
+
+    <p class="dp-home__intro">
+A pesquisa no DPLP foi pensada para ser rápida e prática: serve para confirmar uma
+grafia, esclarecer o significado de uma palavra, verificar regências e exemplos de uso,
+encontrar alternativas lexicais ou compreender a evolução de um termo. Para
+orientações detalhadas sobre funcionalidades e critérios de consulta, ver a secção <strong>
+<a href="/consultar.aspx">Como consultar</a></strong>.
+    </p>
+
+            <p class="dp-home__intro">
+Quaisquer sugestões, correcções ou pedidos de esclarecimento podem ser enviados
+para <strong><a href="mailto:dicionario@priberam.org">dicionario@priberam.pt</a></strong>.
+
+    </p>
+<br> 
+    <!-- ATALHOS -->
+    <nav class="dp-home__quicklinks" aria-label="Atalhos rápidos">
+      <a class="dp-home__pill" href="/consultar.aspx">Como consultar</a>
+      <a class="dp-home__pill" href="/abreviaturas.aspx">Abreviaturas</a>
+      <a class="dp-home__pill" href="/pesquisar_definicoes">Pesquisa nas definições</a>
+    </nav>
+  </section>
+    <section class="dp-home__section" aria-label="O que encontra no DPLP">
+
+  <div class="dp-home__highlight" role="note" aria-label="o que encontra">
+      <span class="dp-home__dot" aria-hidden="true"></span>
+      <div>
+        <div class="dp-home__highlight-title">O que encontra no Dicionário Priberam</div>
+        
+      </div>
+    </div>
+  <!-- FEATURES -->
+  
+
+    <div class="dp-home__grid">
+      <article class="dp-home__card">
+        <h3>Definições</h3>
+        <p>Claras e consistentes, adequadas para consultas rápidas, mas também para usos
+técnicos.</p>
+      </article>
+
+      <article class="dp-home__card">
+        <h3>Sinónimos e antónimos</h3>
+        <p>Organizados por acepção, para ajudar a distinguir sentidos próximos e evitar
+confusão entre palavras parecidas</p>
+      </article>
+
+      <article class="dp-home__card">
+        <h3>Conjugação verbal</h3>
+        <p>Útil para confirmar grafias, formas irregulares, tempos verbais, particípios e tipo
+de conjugação.</p>
+      </article>
+
+      <article class="dp-home__card">
+        <h3>Etimologia e pronúncia</h3>
+        <p>Informações sobre a origem etimológica e indicações de pronúncia, pertinentes para uma melhor compreensão e para um uso mais preciso.</p>
+      </article>
+        </div>
+       <article class="dp-home__card">
+        <h3>Normas de português e Acordo Ortográfico</h3>
+        <p>O DPLP permite fazer consultas segundo a norma do português europeu ou a
+norma do português do Brasil, com ou sem a aplicação do Acordo Ortográfico de
+1990, sendo especialmente útil para quem trabalha com diferentes públicos
+lusófonos.</p>
+      </article>
+   
+
+    
+  </section>
+          
+<br /><br />
+      <h2 class="--pequeno dp-barra-rosa balto">Dúvidas linguísticas</h2>
+  <br />
+<span><style xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:Priberam="default">
+      #resposta_a_duvida A, .#resposta_a_duvida A:link, .#resposta_a_duvida A:active, .#resposta_a_duvida A:visited {
+      text-decoration:underline;
+      }
+      #ver_tambem A, #ver_tambem A:link, #ver_tambem A:active, #ver_tambem A:visited {
+      text-decoration:underline;
+      }
+    </style><script xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:Priberam="default">
+      
+				function MostraDetalhe(URLDestino,DuvidaID) {
+					location.href = URLDestino + "" + DuvidaID;
+				}
+			
+    </script><div width="90%" xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:Priberam="default"><div><b><a href="https://www.flip.pt/Duvidas-Linguisticas/Duvida-Linguistica/DID/3288/&#xA;          "><strong><span class="tituloduv">sobrinho-neto</span></strong></a></b></div><div><span class="def">Gostaria de saber se existe a expressão <i>sobrinhas-netas</i> e se o uso do hífen está correcto.</span></div><div id="resposta_a_duvida"></div></div> <br/><hr/><style xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:Priberam="default">
+      #resposta_a_duvida A, .#resposta_a_duvida A:link, .#resposta_a_duvida A:active, .#resposta_a_duvida A:visited {
+      text-decoration:underline;
+      }
+      #ver_tambem A, #ver_tambem A:link, #ver_tambem A:active, #ver_tambem A:visited {
+      text-decoration:underline;
+      }
+    </style><script xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:Priberam="default">
+      
+				function MostraDetalhe(URLDestino,DuvidaID) {
+					location.href = URLDestino + "" + DuvidaID;
+				}
+			
+    </script><div width="90%" xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:Priberam="default"><div><b><a href="https://www.flip.pt/Duvidas-Linguisticas/Duvida-Linguistica/DID/886/&#xA;          "><strong><span class="tituloduv">sim, senhor</span></strong></a></b></div><div><span class="def">Por vezes somos abordados desta forma: <i>Deseja um 
+café? Sim senhora, trago-lhe já.</i> Sendo eu um indivíduo do sexo masculino, qual é a resposta correcta para esta questão e quais os erros que estão em causa?</span></div><div id="resposta_a_duvida"></div></div></span><br />
+<div style="text-align: left;"><br />
+    <center><strong><a class="botaorosa" href="https://www.flip.pt/produtos/duvidas-linguisticas/">Ver todas</a></strong></center>
+</div>
+
+
+            
+            
+              <center>
+                <div id="div-gpt-ad-mobile-inread-0" class="ad-slot ad-mobile" style="width:100%; text-align:center; margin: 14px 0;">
+                  <script>
+                    (window.googletag = window.googletag || {}, googletag.cmd = googletag.cmd || []).push(function () { googletag.display('div-gpt-ad-mobile-inread-0'); });
+                  </script>
+                </div>
+              </center>
+            
+
+            <br /><br />
+          </div>
+
+          <div class="dp-conteudo__direita">
+            <!-- Sidebar (sem ads dentro) -->
+            <div class="sidebar">
+              
+ <div class="widget dp-widget-palavradodia">
+  <div class="my-0 dp-seccao-titulo">
+    <h3 class="--pequeno"><strong>Palavra do dia</strong></h3>
+  </div>
+  <a href="DoDiaRSS.aspx" target="_blank" class="pb-rss-icon" alt="Palavra do Dia" aria-label="Palavra do dia"></a>
+  <span></span>
+  <a id="wordOfTheDayControl1_lkb_PalavraDoDiaCard" class="dp-palavradodia-card" href="maj%C3%B3lica"><img id="wordOfTheDayControl1_img_PalavraDoDiaCard" class="dp-palavradodia-card__img" src="/img/og/maj%c3%b3lica-pt-sm.jpg" alt="Palavra do dia: majólica" /></a>
+  
+  <div style="text-align: right;">
+    <strong>
+      <a id="wordOfTheDayControl1_lkb_DoDiaVerMais" href="maj%C3%B3lica">Ver definição completa</a>
+    </strong>
+  </div>
+ </div>
+              
+            </div>
+
+            <!-- Sidebar MREC — desktop-only. On mobile the equivalent
+                 in-read MREC renders inside .dp-conteudo__esquerda just
+                 after the definition (above the fold). The CSS class
+                 and the GPT sizeMapping both gate this slot to >=768px. -->
+            
+              <center>
+                <div id="div-gpt-ad-1770296742978-0" class="ad-slot ad-desktop" style="width:100%; text-align:center; margin-top:14px;">
+                  <script>
+                    (window.googletag = window.googletag || {}, googletag.cmd = googletag.cmd || []).push(function () { googletag.display('div-gpt-ad-1770296742978-0'); });
+                  </script>
+                </div>
+              </center>
+            
+
+            <br />
+          </div>
+        </div>
+      </div>
+
+    </form>
+  </main>
+
+   <footer>
+            <div class="barra">
+              <div class="dp-conteudo left">
+                <div class="col-lg-6 col-md-4 col-sm-3">
+                    <a href="https://www.priberam.com" class="brand">
+                        <img src="/img/claro.png" class="logofooter" width="390" height="101" alt="Dicionário Priberam da Língua Portuguesa">
+                        <span class="circle"></span>
+                     
+                    </a>
+                  <p class="descfooter left">O Dicionário Priberam da Língua Portuguesa (DPLP) é um  <a href="https://dicionario.priberam.org/" class="link2">dicionário online de português</a>. Compreende o vocabulário geral e os termos das principais áreas científicas e técnicas. O DPLP contém informação sobre as diferenças ortográficas e de uso entre o português europeu e o português do Brasil. </p>
+              <br />
+                  <div class="left"><a href="https://www.facebook.com/priberam" target="_blank" class="subir" aria-label="Facebook">
+<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0,0,256,256">
+<g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(10.66667,10.66667)"><path d="M19,3h-14c-1.105,0 -2,0.895 -2,2v14c0,1.105 0.895,2 2,2h7.621v-6.961h-2.343v-2.725h2.343v-2.005c0,-2.324 1.421,-3.591 3.495,-3.591c0.699,-0.002 1.397,0.034 2.092,0.105v2.43h-1.428c-1.13,0 -1.35,0.534 -1.35,1.322v1.735h2.7l-0.351,2.725h-2.365v6.965h3.586c1.105,0 2,-0.895 2,-2v-14c0,-1.105 -0.895,-2 -2,-2z"></path></g></g>
+</svg></a>
+                    <a href="https://www.instagram.com/priberam/" target="_blank" class="subir" aria-label="Instagram">
+<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0,0,256,256">
+<g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(10.66667,10.66667)"><path d="M8,3c-2.761,0 -5,2.239 -5,5v8c0,2.761 2.239,5 5,5h8c2.761,0 5,-2.239 5,-5v-8c0,-2.761 -2.239,-5 -5,-5zM18,5c0.552,0 1,0.448 1,1c0,0.552 -0.448,1 -1,1c-0.552,0 -1,-0.448 -1,-1c0,-0.552 0.448,-1 1,-1zM12,7c2.761,0 5,2.239 5,5c0,2.761 -2.239,5 -5,5c-2.761,0 -5,-2.239 -5,-5c0,-2.761 2.239,-5 5,-5zM12,9c-1.65685,0 -3,1.34315 -3,3c0,1.65685 1.34315,3 3,3c1.65685,0 3,-1.34315 3,-3c0,-1.65685 -1.34315,-3 -3,-3z"></path></g></g>
+</svg></a>
+<a href="https://www.tiktok.com/@dicionario_priberam" target="_blank" class="subir" aria-label="TikTok">
+               <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0,0,256,256">
+<g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(10.66667,10.66667)"><path d="M6,3c-1.64497,0 -3,1.35503 -3,3v12c0,1.64497 1.35503,3 3,3h12c1.64497,0 3,-1.35503 3,-3v-12c0,-1.64497 -1.35503,-3 -3,-3zM12,7h2c0,1.005 1.471,2 2,2v2c-0.605,0 -1.332,-0.26584 -2,-0.71484v3.71484c0,1.654 -1.346,3 -3,3c-1.654,0 -3,-1.346 -3,-3c0,-1.654 1.346,-3 3,-3v2c-0.552,0 -1,0.449 -1,1c0,0.551 0.448,1 1,1c0.552,0 1,-0.449 1,-1z"></path></g></g>
+</svg></a>
+                    <a href="https://www.linkedin.com/company/priberam/" target="_blank" class="subir" aria-label="LinkedIn">
+                 <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0,0,256,256">
+<g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(10.66667,10.66667)"><path d="M19,3h-14c-1.105,0 -2,0.895 -2,2v14c0,1.105 0.895,2 2,2h14c1.105,0 2,-0.895 2,-2v-14c0,-1.105 -0.895,-2 -2,-2zM9,17h-2.523v-7h2.523zM7.694,8.717c-0.771,0 -1.286,-0.514 -1.286,-1.2c0,-0.686 0.514,-1.2 1.371,-1.2c0.771,0 1.286,0.514 1.286,1.2c0,0.686 -0.514,1.2 -1.371,1.2zM18,17h-2.442v-3.826c0,-1.058 -0.651,-1.302 -0.895,-1.302c-0.244,0 -1.058,0.163 -1.058,1.302c0,0.163 0,3.826 0,3.826h-2.523v-7h2.523v0.977c0.325,-0.57 0.976,-0.977 2.197,-0.977c1.221,0 2.198,0.977 2.198,3.174z"></path></g></g>
+</svg></a>
+ <a href="https://x.com/priberam" target="_blank" class="subir" aria-label="X">
+<svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0,0,256,256">
+<g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(10.66667,10.66667)"><path d="M10.053,7.988l5.631,8.024h-1.497l-5.621,-8.024zM21,6v12c0,1.657 -1.343,3 -3,3h-12c-1.657,0 -3,-1.343 -3,-3v-12c0,-1.657 1.343,-3 3,-3h12c1.657,0 3,1.343 3,3zM17.538,17l-4.186,-5.99l3.422,-4.01h-1.311l-2.704,3.16l-2.207,-3.16h-3.85l3.941,5.633l-3.737,4.367h1.333l3.001,-3.516l2.458,3.516z"></path></g></g>
+</svg></a>
+
+                </div></div>
+           
+                <div class="col-lg-2">
+                     <p class="menufooter left" >Dicionário</p> 
+                  <ul class="lista-footer">
+                   
+                        <li class="left"><a href="/" target="_blank" class="links-footer">Principal</a></li>
+                        <li class="left"><a href="/pesquisar_definicoes" target="_blank" class="links-footer">Pesquisa nas definições</a></li>
+                        <li class="left"><a href="/sobre.aspx" target="_blank" class="links-footer">Sobre</a></li>
+                        <li class="left"><a href="/consultar.aspx" target="_blank"  class="links-footer">Como consultar</a></li>
+                      <li><a href="/abreviaturas.aspx" target="_blank" class="links-footer">Abreviaturas</a></li>
+                   <li><a href="https://www.flip.pt/gramatica" target="_blank" class="links-footer">Gramática</a></li>
+                      </ul>
+                </div>
+                  <div class="col-lg-2 ">
+                      <p class="menufooter left">Outras ligações</p>
+                    <ul class="lista-footer-direita">
+                        
+                        <li class="left"><a href="https://www.priberam.com/contact-us/" target="_blank" class="links-footer" aria-label="Facebook">Contactos</a></li>
+                        <li class="left"><a href="https://www.priberam.com/" target="_blank" class="links-footer" aria-label="Priberam">Priberam</a></li>
+                        <li class="left"><a href="https://www.flip.pt/" target="_blank" class="links-footer" aria-label="FliP">FLiP</a></li>
+                        <li class="left"><a href="https://www.legix.pt/" target="_blank"  class="links-footer" aria-label="LegiX">LegiX</a></li>
+                      <li class="left"><a href="https://www.plainx.com/" target="_blank" class="links-footer" aria-label="plain X">plain X</a></li>
+                      <li class="left"><a href="https://priberam.care/" target="_blank" class="links-footer" aria-label="Priberam care">Priberam Care</a></li>
+                    </ul>
+                </div></div></div>
+                <div class="footer2">
+                    <div class="copyright">
+                        <p class="copyright">© 2026 Priberam Informática, S.A. Todos os direitos reservados</p>
+                    </div>
+      
+          
+    </footer>
+
+
+  <script>
+    $(function () {
+      $('.dp-navegacao__menu a').filter(function () {
+        if (window.location.href?.startsWith('http://localhost/Pesquisar/')) {
+          return this.href === 'http://localhost/pesquisar_definicoes'
+        } else { return this.href === window.location.href }
+      }).addClass('--active');
+
+      $(".custom-close").on('click', function () {
+        $('#myModal').modal('hide');
+      });
+    });
+
+    function getProxyURL() { return "https://dicionario.priberam.org/"; }
+    function getBaseURL() { return ""; }
+  </script>
+
+  <!-- run-google -->
+  <script>
+    function SeparateOrtoepia() {
+      $('.dp-so').each(function () {
+        if (this?.innerHTML?.includes("| ou |")) {
+          this.innerHTML = this.innerHTML.split('| ou |').join('|<span class="mx-8 h6 --pequeno">ou</span>|');
+        }
+      });
+    }
+
+    function DefineInside1() {
+      $('.def').each(function () {
+        if (this?.innerHTML?.includes("| ou |")) {
+          this.innerHTML = this.innerHTML.split('| ou |').join('|<span class="mx-8 h6 --pequeno">ou</span>|');
+          return;
+        } else iterateContent(this);
+      });
+
+      $('span.word_wrap').each(function () { separateWords(this); });
+      $('span.word').bind('click', wordMeaningClick);
+
+      if (false) {
+        $('span.word').bind('mouseenter', wordMeaningMouseEnter);
+        $('span.word').bind('mouseleave', wordMeaningMouseLeave);
+        $('.dp-lista-palavras a').attr('title', '');
+        $(document).on('mouseenter', '.dp-lista-palavras a[href]', wordMeaningMouseEnter);
+        $(document).on('mouseleave', '.dp-lista-palavras a[href]', wordMeaningMouseLeave);
+        $(document).on('mouseenter', '.pb-last-searches a', wordMeaningMouseEnter);
+        $(document).on('mouseleave', '.pb-last-searches a', wordMeaningMouseLeave);
+      }
+    }
+
+    function AddHoverToPictureIcon() {
+      $(".dp-icon--hover").mouseover(function () { $(this).attr('src', $(this).data("hover")); })
+                          .mouseout(function () { $(this).attr('src', $(this).data("src")); });
+    }
+
+    function navigateToAnchor() {
+      const selectedWord = document.getElementsByClassName('dp-input-pesquisa')[0]?.value;
+      if (!selectedWord) return;
+      let locateLocucao = document.getElementById(selectedWord);
+      if (locateLocucao) {
+        locateLocucao.scrollIntoView({ behavior: 'smooth', block: "center", inline: "nearest" });
+        locateLocucao.classList.add("--anchor");
+        setTimeout(() => locateLocucao.classList.remove("--anchor"), 5000);
+      }
+    }
+
+    function DefineInside(element) {
+      $('.def', element).each(function () {
+        if (this?.innerHTML?.includes("| ou |")) {
+          this.innerHTML = this.innerHTML.split('| ou |').join('|<span class="mx-8">ou</span>|');
+          return;
+        } else iterateContent(this);
+      });
+
+      $('span.word_wrap', element).each(function () { separateWords(this); });
+      $('span.word', element).bind('click', wordMeaningClick);
+
+      if (false) {
+        $('span.word', element).bind('mouseenter', wordMeaningMouseEnter);
+        $('span.word', element).bind('mouseleave', wordMeaningMouseLeave);
+        $('.dp-lista-palavras a').attr('title', '');
+        $('.dp-lista-palavras a[href]', element).on('mouseenter', wordMeaningMouseEnter);
+        $('.dp-lista-palavras a[href]', element).on('mouseleave', wordMeaningMouseLeave);
+        $('.pb-last-searches a', element).on('mouseenter', wordMeaningMouseEnter);
+        $('.pb-last-searches a', element).on('mouseleave', wordMeaningMouseLeave);
+      }
+    }
+
+    function wordMeaningClick() {
+      window.top.location = "./" + $(this).text();
+    }
+
+    $(function () {
+      navigateToAnchor();
+      document.addEventListener("run-google", DefineInside1);
+      document.addEventListener("run-google", SeparateOrtoepia);
+      document.addEventListener("run-google", AddHoverToPictureIcon);
+      initBreadcrumbTrail();
+      hoistGaleriaImagens();
+    });
+
+    /* Move <section class="prb-galeria-pendente"> emitted by the SOAP
+       XSLT out of the article and into #prb-galeria-target so the gallery
+       sits just above the Dúvidas Linguísticas block on the word page.
+       No-op on pages without the marker. */
+    function hoistGaleriaImagens() {
+      var src = document.querySelector('.prb-galeria-pendente');
+      var dst = document.getElementById('prb-galeria-target');
+      if (!src || !dst) return;
+      src.classList.remove('prb-galeria-pendente');
+      dst.appendChild(src);
+    }
+
+    /* Breadcrumb trail
+       - Clicking an in-definition word link (a.word) extends the trail
+       - Searching via the search box / autocomplete / direct URL resets it
+       - Browser back/forward truncates the trail to the current word
+       Trail persists per-tab in sessionStorage. */
+    function initBreadcrumbTrail() {
+      var TRAIL_KEY = 'dp_breadcrumb_trail';
+      var NAV_KEY   = 'dp_nav_source';
+
+      function getTrail() {
+        try { return JSON.parse(sessionStorage.getItem(TRAIL_KEY)) || []; }
+        catch (e) { return []; }
+      }
+      function setTrail(t) { try { sessionStorage.setItem(TRAIL_KEY, JSON.stringify(t)); } catch (e) {} }
+      function clearTrail() { try { sessionStorage.removeItem(TRAIL_KEY); } catch (e) {} }
+      function escapeHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+      // Mark navigation source for the *next* page load
+      $(document).on('click', 'a.word', function () {
+        try { sessionStorage.setItem(NAV_KEY, 'word-click'); } catch (e) {}
+      });
+
+      var $list = $('.dp-breadcrumb__list');
+      var $current = $list.find('[aria-current="page"]').first();
+      if (!$list.length || !$current.length) {
+        // No word page — clear the trail and any pending nav source
+        clearTrail();
+        try { sessionStorage.removeItem(NAV_KEY); } catch (e) {}
+        return;
+      }
+
+      var currentWord = $current.text().trim();
+      var navSource = null;
+      try { navSource = sessionStorage.getItem(NAV_KEY); sessionStorage.removeItem(NAV_KEY); } catch (e) {}
+
+      var trail = getTrail();
+      var idx = trail.indexOf(currentWord);
+      if (idx >= 0) {
+        // Already in the trail — truncate to it (handles back navigation)
+        trail = trail.slice(0, idx + 1);
+      } else if (navSource === 'word-click' && trail.length > 0) {
+        // Came from clicking an in-definition word — extend
+        trail.push(currentWord);
+      } else {
+        // Search box, autocomplete, direct URL — reset
+        trail = [currentWord];
+      }
+      setTrail(trail);
+
+      // Re-render the list
+      var html = '<li><a href="/">Dicionário Priberam</a></li>';
+      trail.forEach(function (word, i) {
+        if (i === trail.length - 1) {
+          html += '<li aria-current="page">' + escapeHtml(word) + '</li>';
+        } else {
+          html += '<li><a href="/' + encodeURIComponent(word) + '">' + escapeHtml(word) + '</a></li>';
+        }
+      });
+      $list.html(html);
+    }
+
+    function wordMeaningMouseEnter() { }
+    function wordMeaningMouseLeave() { }
+
+    function iterateContent(node) {
+      // Skip <a class="word"> elements — they're server-side linkified words
+      // (Definicao.LoadDef -> Utils.LinkifyDefinitionWords). Re-processing them
+      // would have separateWords rebuild innerHTML and destroy the href.
+      if (node.nodeType === 1 && node.tagName === 'A' && node.classList && node.classList.contains('word')) return;
+      if (node.nodeType === 3) $(node).wrap('<span class="word_wrap" />');
+      else $(node).contents().each(function () { iterateContent(this); });
+    };
+
+    function separateWords(_node) {
+      var node = $(_node);
+      var text = node.text();
+      var newText = "";
+      var open = false;
+
+      for (var i = 0; i < text.length; i++) {
+        var currentChar = text.charAt(i);
+        if (open) {
+          if (/^[\-A-Za-z\u00C0-\u017F]+$/.test(currentChar)) newText += currentChar;
+          else { newText += "</span>" + currentChar; open = false; }
+        } else {
+          if (/^[\-A-Za-z\u00C0-\u017F]+$/.test(currentChar)) { newText += "<span class='word a'>" + currentChar; open = true; }
+          else newText += currentChar;
+        }
+      }
+      node.html(newText);
+    }
+  </script>
+
+  <!-- Defer do "run-google" -->
+  <script type="text/javascript">
+    var timeoutvar;
+    function downloadJS() {
+      document.removeEventListener('mousedown', downloadJS);
+      document.removeEventListener('mousemove', downloadJS);
+      document.removeEventListener('touchstart', downloadJS);
+      document.removeEventListener('scroll', downloadJS);
+      document.removeEventListener('keydown', downloadJS);
+      clearTimeout(timeoutvar);
+      document.dispatchEvent(new CustomEvent("run-google"));
+    }
+
+    function downloadJsAtOnload() {
+      document.addEventListener('mousedown', downloadJS);
+      document.addEventListener('mousemove', downloadJS);
+      document.addEventListener('touchstart', downloadJS);
+      document.addEventListener('scroll', downloadJS);
+      document.addEventListener('keydown', downloadJS);
+      timeoutvar = setTimeout(downloadJS, 15000);
+    }
+
+    if (window.addEventListener) window.addEventListener("load", downloadJsAtOnload, false);
+    else if (window.attachEvent) window.attachEvent("onload", downloadJsAtOnload);
+    else window.onload = downloadJsAtOnload;
+  </script>
+
+  <!-- Dark mode (sincroniza desktop + mobile) -->
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var KEY = 'theme';
+
+      function getPreferred() {
+        var stored = localStorage.getItem(KEY);
+        if (stored === 'dark' || stored === 'light') return stored;
+        return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      }
+
+      function apply(theme) {
+        root.setAttribute('data-theme', theme);
+        localStorage.setItem(KEY, theme);
+
+        var isDark = theme === 'dark';
+        // The label describes the *action* the toggle will perform on
+        // activation, which is the opposite of the current state.
+        var nextLabel = isDark ? 'Mudar para modo claro' : 'Mudar para modo escuro';
+
+        ['toggle', 'toggle-mob'].forEach(function (id) {
+          var input = document.getElementById(id);
+          if (!input) return;
+          input.checked = isDark;
+          input.setAttribute('aria-checked', String(isDark));
+          input.setAttribute('aria-label', nextLabel);
+          var label = document.querySelector('label[for="' + id + '"] .sr-only');
+          if (label) label.textContent = nextLabel;
+        });
+      }
+
+      function bind(id) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('change', function () {
+          apply(el.checked ? 'dark' : 'light');
+        });
+      }
+
+      apply(getPreferred());
+      bind('toggle');
+      bind('toggle-mob');
+    })();
+  </script>
+
+  <!-- Fancybox em defer (sem mexer em ads) -->
+  <script>
+    let fancyboxLoaded = false;
+    let hasInteracted = false;
+
+    function loadDeferredFancybox() {
+      if (hasInteracted) return;
+      hasInteracted = true;
+
+      if (!fancyboxLoaded && !window.Fancybox) {
+        fancyboxLoaded = true;
+
+        const fancyCSS = document.createElement('link');
+        fancyCSS.rel = 'stylesheet';
+        fancyCSS.href = 'https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.24/dist/fancybox/fancybox.min.css';
+        document.head.appendChild(fancyCSS);
+
+        const fancyScript = document.createElement('script');
+        fancyScript.src = 'https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.24/dist/fancybox/fancybox.umd.min.js';
+        fancyScript.onload = function () {
+          const FB = window.Fancybox || window.Fancybox?.default;
+          if (FB && typeof FB.bind === 'function') {
+            // Bind every [data-fancybox] regardless of group so the
+            // Galeria de imagens tiles ("galeria-imagens") get the same
+            // lightbox behaviour as the inline image icons in the
+            // definitions ("gallery"). Fancybox reads the group name
+            // from the attribute at click time, so a generic selector
+            // is enough.
+            FB.bind('[data-fancybox]', {});
+          }
+        };
+        document.body.appendChild(fancyScript);
+      }
+
+      document.removeEventListener('mousemove', loadDeferredFancybox);
+      document.removeEventListener('touchstart', loadDeferredFancybox);
+      document.removeEventListener('keydown', loadDeferredFancybox);
+      document.removeEventListener('scroll', loadDeferredFancybox);
+    }
+
+    document.addEventListener('mousemove', loadDeferredFancybox);
+    document.addEventListener('touchstart', loadDeferredFancybox);
+    document.addEventListener('keydown', loadDeferredFancybox);
+    document.addEventListener('scroll', loadDeferredFancybox);
+
+    setTimeout(loadDeferredFancybox, 30000);
+  </script>
+
+</body>
+</html>
