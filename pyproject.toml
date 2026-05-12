@@ -18,7 +18,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest", "ovoscope", "ovos-adapt-parser"]
+test = ["pytest", "ovoscope"]
 
 [project.urls]
 Homepage = "https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day"
