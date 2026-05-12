@@ -1,24 +1,14 @@
 """Unit tests for per-language parsers using real HTML captured from upstream.
 
-The fixtures in test/unit/fixtures/ are real responses fetched from each
-upstream endpoint (trimmed to the relevant DOM subtree). When a site changes
-its markup, the corresponding fixture must be re-captured and the parser
-updated.
-
-Two parsers are currently broken against their live sites and marked xfail:
-- Priberam (pt-PT/pt-BR): home page no longer ships dp-definicao-header etc.
-- Portal das Palabras (gl-ES): no longer ships archive-palabra-do-dia.
-
-strict=True means: when the parser is fixed, xfail-passing becomes a CI
-error so the marker is removed instead of silently masking the fix.
+Fixtures in test/unit/fixtures/ are real responses trimmed to the relevant
+DOM subtree. When a site changes markup, re-capture the fixture and update
+the parser. A separate scheduled job (check-parsers.yml) hits the real APIs
+periodically to flag drift early.
 """
-import datetime
 import json
 from pathlib import Path
 from unittest import TestCase
 from unittest.mock import patch, MagicMock
-
-import pytest
 
 import ovos_skill_word_of_the_day as wod
 
@@ -51,35 +41,30 @@ class TestGetWodEnglish(TestCase):
 
 
 class TestGetWodPortuguese(TestCase):
-    """Priberam — site changed; parser broken until selectors are updated."""
+    """Priberam — captured 2026-05-12, word 'majólica' (two-step: home → word page)."""
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="Priberam home no longer ships dp-definicao-header/varpt; parser needs update",
-    )
+    def _run(self, pt_br: bool):
+        home = _fixture("priberam_home.html")
+        word_page = _fixture("priberam_word.html")
+        with patch.object(wod, "_http_get", side_effect=[
+            _fake_response(text=home),
+            _fake_response(text=word_page),
+        ]):
+            return wod.get_wod_pt(pt_br=pt_br)
+
     def test_parses_priberam_pt_pt(self):
-        html = _fixture("priberam.html")
-        with patch.object(wod, "_http_get", return_value=_fake_response(text=html)):
-            wod.get_wod_pt(pt_br=False)
+        word, definition = self._run(pt_br=False)
+        self.assertEqual(word, "majólica")
+        self.assertIn("cerâmica", definition)
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="Priberam home no longer ships dp-definicao-header/varpb; parser needs update",
-    )
     def test_parses_priberam_pt_br(self):
-        html = _fixture("priberam.html")
-        with patch.object(wod, "_http_get", return_value=_fake_response(text=html)):
-            wod.get_wod_pt(pt_br=True)
+        word, definition = self._run(pt_br=True)
+        self.assertEqual(word, "majólica")
+        self.assertIn("cerâmica", definition)
 
 
 class TestGetWodCatalan(TestCase):
-    """rodamots.cat — captured 2026-05-12, entry 'a ranvespre'.
-
-    Note: the parser's `.strip()[:-1]` heuristic drops the last char of the h1
-    text. For 'a ranvespre loc adv ' that yields 'a ranvespre loc ad' — a
-    pre-existing parser bug exposed by this fixture. Assertion records the
-    current behavior; fix the parser to fix the assertion.
-    """
+    """rodamots.cat — captured 2026-05-12, entry 'a ranvespre' (two-step: home → entry)."""
 
     def test_parses_rodamots_two_step(self):
         index = _fixture("rodamots_index.html")
@@ -89,12 +74,12 @@ class TestGetWodCatalan(TestCase):
             _fake_response(text=entry),
         ]):
             word, definition = wod.get_wod_ca()
-        self.assertEqual(word, "a ranvespre loc ad")
+        self.assertEqual(word, "a ranvespre")
         self.assertEqual(definition, "A entrada de fosc, a l’horabaixa.")
 
 
 class TestGetWodFrench(TestCase):
-    """fr.wiktionary.org API — captured 2026-05-12, word 'sans tambour ni trompette'."""
+    """fr.wiktionary.org API — captured 2026-05-12, 'sans tambour ni trompette'."""
 
     def test_parses_wiktionary_api(self):
         payload = json.loads(_fixture("wiktionary_fr.json"))
@@ -108,18 +93,18 @@ class TestGetWodFrench(TestCase):
 
 
 class TestGetWodGalician(TestCase):
-    """portaldaspalabras.gal — site changed; parser broken."""
+    """portaldaspalabras.gal — captured 2026-05-12, 'soidade' (two-step: home → word)."""
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason="portaldaspalabras.gal no longer ships archive-palabra-do-dia div; parser needs update",
-    )
     def test_parses_portaldaspalabras_two_step(self):
-        index = _fixture("portaldaspalabras_index.html")
-        with patch.object(wod, "_http_post",
-                          return_value=_fake_response(content=index.encode("utf-8"))):
-            # Pin date to avoid recursion into prior days when div is missing.
-            wod.get_wod_gl(date=datetime.date(2026, 5, 12))
+        home = _fixture("portaldaspalabras_home.html")
+        word_page = _fixture("portaldaspalabras_word.html")
+        with patch.object(wod, "_http_get", side_effect=[
+            _fake_response(text=home),
+            _fake_response(text=word_page),
+        ]):
+            word, definition = wod.get_wod_gl()
+        self.assertEqual(word, "soidade")
+        self.assertTrue(definition, "definition should not be empty")
 
 
 class TestNormalizeDefinitionText(TestCase):
