@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.6a2](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.6a2) (2026-08-12)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.6a1...0.2.6a2)
+
+**Merged pull requests:**
+
+- test: add golden-utterance e2e suite [\#36](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/36) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.6a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.6a1) (2026-08-01)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.5...0.2.6a1)
