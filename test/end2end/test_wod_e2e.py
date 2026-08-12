@@ -3,8 +3,19 @@
 Verifies that the adapt intent `WordOfTheDayIntent` matches for each supported
 language and that the handler runs to completion. Parser functions that fetch
 the word from external sites are monkey-patched so tests run offline.
+
+``expected_messages`` asserts the EXACT canonical message sequence (not "at
+least N" / a subset): captured once via an isolated probe against this real
+skill+MiniCroft before writing this fixture, using ``ovos_spec_tools``'s
+``SpecMessage`` constants for every message type that has a canonical OVOS
+name. The handler speaks twice (the "word of day" dialog, then the
+definition), which is why ``SPEAK``/``AUDIO_OUTPUT_STARTED`` each appear
+twice in the sequence -- that's real handler behavior, not a bug.
+``mycroft.skill.handler.start/complete``, ``{skill}.activate``, and
+``recognizer_loop:*`` have no ``SpecMessage`` entry (they're outside that
+enum's coverage), so they stay as literal strings, same as the previous
+version of this file.
 """
-from copy import deepcopy
 from unittest import TestCase
 from unittest.mock import patch
 
@@ -14,19 +25,25 @@ ovoscope = pytest.importorskip("ovoscope", reason="ovoscope not installed")
 
 from ovos_bus_client.message import Message  # noqa: E402
 from ovos_bus_client.session import Session  # noqa: E402
+from ovos_spec_tools import SpecMessage  # noqa: E402
 from ovos_utils.log import LOG  # noqa: E402
 from ovoscope import End2EndTest, get_minicroft  # noqa: E402
 
 SKILL_ID = "ovos-skill-word-of-the-day.openvoiceos"
 
 _IGNORE = [
-    "speak",
     "enclosure.mouth.viseme_list",
     "gui.value.set",
     "gui.page.show",
     "gui.page_interaction",
     "mycroft.audio.speech.stop",
     "ovos.common_play.stop.response",
+    # timing-dependent: mocked TTS completes near-instantly and this event's
+    # presence races the capture cutoff -- observed present or absent across
+    # otherwise-identical runs. Ignored for a deterministic exact-count
+    # assertion below (same fix applied to the sibling
+    # test_word_of_the_day_intent.py suite).
+    "recognizer_loop:audio_output_end",
 ]
 
 
@@ -75,8 +92,7 @@ class _WODBase(TestCase):
             {"session": session.serialize()},
         )
 
-        final_session = deepcopy(session)
-        final_session.active_skills = [(SKILL_ID, 0.0)]
+        intent_msg = f"{SKILL_ID}:WordOfTheDayIntent"
 
         test = End2EndTest(
             minicroft=self.minicroft,
@@ -85,21 +101,27 @@ class _WODBase(TestCase):
             flip_points=["recognizer_loop:utterance"],
             ignore_messages=_IGNORE,
             source_message=message,
-            final_session=final_session,
-            activation_points=[f"{SKILL_ID}:WordOfTheDayIntent"],
+            activation_points=[intent_msg],
+            # exact sequence, captured via an isolated probe (see module
+            # docstring); the handler speaks twice (dialog + definition).
             expected_messages=[
                 message,
                 Message(f"{SKILL_ID}.activate", {}, {"skill_id": SKILL_ID}),
-                Message(f"{SKILL_ID}:WordOfTheDayIntent",
-                        {"utterance": utterance, "lang": lang},
-                        {"skill_id": SKILL_ID}),
+                Message(SpecMessage.INTENT_MATCHED.value, {}, {"skill_id": SKILL_ID}),
+                Message(SpecMessage.INTENT_HANDLER_START.value, {}, {"skill_id": SKILL_ID}),
+                Message(intent_msg, {"utterance": utterance, "lang": lang}, {"skill_id": SKILL_ID}),
                 Message("mycroft.skill.handler.start",
                         {"name": "WordOfTheDaySkill.handle_word_of_the_day_intent"},
                         {"skill_id": SKILL_ID}),
+                Message(SpecMessage.SPEAK.value, {}, {"skill_id": SKILL_ID}),
+                Message("recognizer_loop:audio_output_start", {}, {"skill_id": SKILL_ID}),
+                Message(SpecMessage.SPEAK.value, {}, {"skill_id": SKILL_ID}),
+                Message("recognizer_loop:audio_output_start", {}, {"skill_id": SKILL_ID}),
                 Message("mycroft.skill.handler.complete",
                         {"name": "WordOfTheDaySkill.handle_word_of_the_day_intent"},
                         {"skill_id": SKILL_ID}),
-                Message("ovos.utterance.handled", {}, {"skill_id": SKILL_ID}),
+                Message(SpecMessage.INTENT_HANDLER_COMPLETE.value, {}, {"skill_id": SKILL_ID}),
+                Message(SpecMessage.UTTERANCE_HANDLED.value, {}, {"skill_id": SKILL_ID}),
             ],
         )
         test.execute(timeout=30)
