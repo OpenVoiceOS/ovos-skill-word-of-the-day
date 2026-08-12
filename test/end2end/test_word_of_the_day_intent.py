@@ -1,8 +1,24 @@
+"""End-to-end tests asserting each locale routes to its own word source.
+
+``expected_messages`` asserts the EXACT canonical message sequence (not "at
+least N"), captured once via an isolated probe against this real
+skill+MiniCroft before writing this fixture, using ``ovos_spec_tools``'s
+``SpecMessage`` constants for every message type that has a canonical OVOS
+name. ``End2EndTest`` defaults to ``ignore_gui=True`` regardless of
+``ignore_messages``, so the ``gui.value.set``/``gui.page.show`` this
+handler's ``self.gui.show_text(...)`` call emits never reach the assertion
+-- confirmed by an isolated probe (see this repo's PR description) that
+they only show up on a raw ``CaptureSession`` with no ``ignore_gui``.
+``mycroft.skill.handler.start/complete``, ``{skill}.activate``, and
+``recognizer_loop:*`` have no ``SpecMessage`` entry, so they stay as literal
+strings, same as the previous version of this file.
+"""
 import sys
 from unittest import TestCase
 
 from ovos_bus_client.message import Message
 from ovos_bus_client.session import Session
+from ovos_spec_tools import SpecMessage
 from ovos_utils.log import LOG
 from ovoscope import End2EndTest, get_minicroft
 
@@ -13,11 +29,15 @@ SECONDARY_LANGS = ["ca-ES", "fr-FR", "gl-ES", "pt-PT"]
 SOURCE_FUNCTIONS = ("get_wod", "get_wod_ca", "get_wod_fr",
                     "get_wod_gl", "get_wod_pt")
 IGNORE_MESSAGES = [
-    "speak",
     "ovos.common_play.stop.response",
     "common_query.openvoiceos.stop.response",
     "persona.openvoiceos.stop.response",
     "stop.openvoiceos.stop.response",
+    # timing-dependent: observed present or absent across otherwise-identical
+    # runs (mocked TTS completes near-instantly, racing the capture cutoff).
+    # Ignored here for a deterministic exact-count assertion below, same as
+    # this suite's sibling test_wod_e2e.py (which never observed it at all).
+    "recognizer_loop:audio_output_end",
 ]
 
 
@@ -75,15 +95,25 @@ class TestWordOfTheDayIntentRouting(TestCase):
             ignore_messages=IGNORE_MESSAGES,
             source_message=message,
             activation_points=[INTENT],
+            # exact sequence, captured via an isolated probe (see module
+            # docstring); the handler speaks twice (dialog + definition),
+            # with a GUI update in between.
             expected_messages=[
                 message,
                 Message(f"{SKILL_ID}.activate", {}, {"skill_id": SKILL_ID}),
+                Message(SpecMessage.INTENT_MATCHED.value, {}, {"skill_id": SKILL_ID}),
+                Message(SpecMessage.INTENT_HANDLER_START.value, {}, {"skill_id": SKILL_ID}),
                 Message(INTENT, {}, {"skill_id": SKILL_ID}),
                 Message("mycroft.skill.handler.start", {},
                         {"skill_id": SKILL_ID}),
+                Message(SpecMessage.SPEAK.value, {}, {"skill_id": SKILL_ID}),
+                Message("recognizer_loop:audio_output_start", {}, {"skill_id": SKILL_ID}),
+                Message(SpecMessage.SPEAK.value, {}, {"skill_id": SKILL_ID}),
+                Message("recognizer_loop:audio_output_start", {}, {"skill_id": SKILL_ID}),
                 Message("mycroft.skill.handler.complete", {},
                         {"skill_id": SKILL_ID}),
-                Message("ovos.utterance.handled", {}, {"skill_id": SKILL_ID}),
+                Message(SpecMessage.INTENT_HANDLER_COMPLETE.value, {}, {"skill_id": SKILL_ID}),
+                Message(SpecMessage.UTTERANCE_HANDLED.value, {}, {"skill_id": SKILL_ID}),
             ],
         )
         test.execute(timeout=15)
