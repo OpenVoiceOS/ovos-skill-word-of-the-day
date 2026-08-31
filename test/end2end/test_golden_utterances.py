@@ -23,7 +23,7 @@ from ovoscope import CaptureSession, get_minicroft
 SKILL_ID = "ovos-skill-word-of-the-day.openvoiceos"
 LANG = "en-US"
 
-_PIPELINE = ["ovos-adapt-pipeline-plugin-high"]
+_PIPELINE = ["ovos-padacioso-pipeline-plugin-high"]
 
 _IGNORE = [
     "speak",
