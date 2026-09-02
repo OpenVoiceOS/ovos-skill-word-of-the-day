@@ -15,6 +15,7 @@ dependencies = [
     "requests",
     "bs4",
     "ovos-workshop",
+    "ovos-date-parser",
 ]
 
 [project.optional-dependencies]

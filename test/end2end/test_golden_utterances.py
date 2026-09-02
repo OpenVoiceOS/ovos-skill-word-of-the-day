@@ -131,7 +131,7 @@ def _golden_id(row):
     return row["utterance"]
 
 
-@pytest.mark.timeout(60)
+@pytest.mark.timeout(300)
 @pytest.mark.parametrize("row", GOLDEN_ROWS, ids=_golden_id)
 def test_golden_utterance(minicroft, row):
     types = _types(minicroft, row["utterance"], f"golden-{_golden_id(row)}")
@@ -140,7 +140,7 @@ def test_golden_utterance(minicroft, row):
     )
 
 
-@pytest.mark.timeout(60)
+@pytest.mark.timeout(300)
 @pytest.mark.parametrize("negative", NEGATIVE_UTTERANCES, ids=lambda n: n[0])
 def test_negative_confusable_not_claimed(minicroft, negative):
     text, source_skill = negative

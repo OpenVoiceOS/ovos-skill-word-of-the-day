@@ -117,6 +117,8 @@ class _WODBase(TestCase):
                 Message("recognizer_loop:audio_output_start", {}, {"skill_id": SKILL_ID}),
                 Message(SpecMessage.SPEAK.value, {}, {"skill_id": SKILL_ID}),
                 Message("recognizer_loop:audio_output_start", {}, {"skill_id": SKILL_ID}),
+                # prev_wod_word session context write (spell-that follow-up)
+                Message("add_context", {}, {"skill_id": SKILL_ID}),
                 Message("mycroft.skill.handler.complete",
                         {"name": "WordOfTheDaySkill.handle_word_of_the_day_intent"},
                         {"skill_id": SKILL_ID}),

@@ -110,6 +110,9 @@ class TestWordOfTheDayIntentRouting(TestCase):
                 Message("recognizer_loop:audio_output_start", {}, {"skill_id": SKILL_ID}),
                 Message(SpecMessage.SPEAK.value, {}, {"skill_id": SKILL_ID}),
                 Message("recognizer_loop:audio_output_start", {}, {"skill_id": SKILL_ID}),
+                # the handler records the spoken word as the prev_wod_word
+                # session context (feeds the spell-that follow-up intent)
+                Message("add_context", {}, {"skill_id": SKILL_ID}),
                 Message("mycroft.skill.handler.complete", {},
                         {"skill_id": SKILL_ID}),
                 Message(SpecMessage.INTENT_HANDLER_COMPLETE.value, {}, {"skill_id": SKILL_ID}),
