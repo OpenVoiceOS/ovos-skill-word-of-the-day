@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.7a2](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.7a2) (2026-09-02)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.7a1...0.2.7a2)
+
+**Merged pull requests:**
+
+- refactor: migrate WordOfTheDayIntent to an intent file [\#44](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/44) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.7a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.7a1) (2026-08-26)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.6a3...0.2.7a1)
