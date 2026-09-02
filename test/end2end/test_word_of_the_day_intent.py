@@ -80,7 +80,7 @@ class TestWordOfTheDayIntentRouting(TestCase):
     def _assert_routes_to_source(self, utterance, lang, source_name):
         session = Session(f"wod-{lang}-{abs(hash(utterance))}")
         session.lang = lang
-        session.pipeline = ["ovos-adapt-pipeline-plugin-high"]
+        session.pipeline = ["ovos-padacioso-pipeline-plugin-high"]
         message = Message(
             "recognizer_loop:utterance",
             {"utterances": [utterance], "lang": lang},

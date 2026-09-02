@@ -5,7 +5,6 @@ import requests
 from typing import Optional, Union
 from bs4 import BeautifulSoup
 from ovos_workshop.decorators import intent_handler
-from ovos_workshop.intents import IntentBuilder
 from ovos_workshop.skills.auto_translatable import OVOSSkill
 from ovos_utils.log import LOG
 from ovos_utils.time import now_local
@@ -229,7 +228,7 @@ def get_wod_fr():
 
 class WordOfTheDaySkill(OVOSSkill):
 
-    @intent_handler(IntentBuilder("WordOfTheDayIntent").require("WordOfTheDayKeyword"))
+    @intent_handler("WordOfTheDayIntent.intent")
     def handle_word_of_the_day_intent(self, message):
         lang = self.lang.lower()
         primary_lang = lang.split("-")[0]

@@ -84,7 +84,7 @@ class _WODBase(TestCase):
     def _run(self, utterance: str, lang: str):
         session = Session(f"wod-{lang}")
         session.lang = lang
-        session.pipeline = ["ovos-adapt-pipeline-plugin-high"]
+        session.pipeline = ["ovos-padacioso-pipeline-plugin-high"]
 
         message = Message(
             "recognizer_loop:utterance",
