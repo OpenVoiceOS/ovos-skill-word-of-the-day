@@ -24,7 +24,7 @@ from ovoscope import End2EndTest, get_minicroft
 
 
 SKILL_ID = "ovos-skill-word-of-the-day.openvoiceos"
-INTENT = f"{SKILL_ID}:WordOfTheDayIntent"
+INTENT = f"{SKILL_ID}:word_of_the_day"
 SECONDARY_LANGS = ["ca-ES", "fr-FR", "gl-ES", "pt-PT"]
 SOURCE_FUNCTIONS = ("get_wod", "get_wod_ca", "get_wod_fr",
                     "get_wod_gl", "get_wod_pt")

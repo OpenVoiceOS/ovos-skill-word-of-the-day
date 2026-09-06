@@ -101,7 +101,7 @@ def test_spell_follow_up_speaks_the_remembered_word(minicroft):
     followup = _send(minicroft, "spell that", session)
 
     types = [m.msg_type for m in followup]
-    assert any(t.startswith(f"{SKILL_ID}:") and "SpellWod" in t for t in types), types
+    assert any(t.startswith(f"{SKILL_ID}:") and "spell_wod" in t for t in types), types
     spoken = [m.data.get("utterance") for m in followup
               if m.msg_type in ("speak", "ovos.utterance.speak")]
     assert any("testword is spelled t. e. s. t. w. o. r. d." in (u or "") for u in spoken), spoken
@@ -160,4 +160,4 @@ def test_spell_follow_up_without_prior_word_is_not_claimed(minicroft):
     messages = _send(minicroft, "spell that", session)
 
     types = [m.msg_type for m in messages]
-    assert not any(t.startswith(f"{SKILL_ID}:") and "SpellWod" in t for t in types), types
+    assert not any(t.startswith(f"{SKILL_ID}:") and "spell_wod" in t for t in types), types
