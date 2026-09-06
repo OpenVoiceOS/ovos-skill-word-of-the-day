@@ -1,61 +1,54 @@
 # Changelog
 
-## [0.2.5a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.5a1) (2026-05-12)
+## [0.3.0a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.3.0a1) (2026-09-06)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.4a3...0.2.5a1)
-
-**Merged pull requests:**
-
-- fix\(parsers\): real HTML fixtures + repair Priberam/Galician/Catalan + live monitor [\#31](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/31) ([JarbasAl](https://github.com/JarbasAl))
-
-## [0.2.4a3](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.4a3) (2026-05-12)
-
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.4a2...0.2.4a3)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.7a2...0.3.0a1)
 
 **Merged pull requests:**
 
-- test: add ovoscope end-to-end tests [\#29](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/29) ([JarbasAl](https://github.com/JarbasAl))
-- Fix Dictionary.com word of the day parser [\#28](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/28) ([goldyfruit](https://github.com/goldyfruit))
+- feat: migrate SpellWodIntent to a session-context file intent [\#48](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/48) ([JarbasAl](https://github.com/JarbasAl))
 
-## [0.2.4a2](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.4a2) (2026-04-04)
+## [0.2.7a2](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.7a2) (2026-09-02)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.4a1...0.2.4a2)
-
-**Merged pull requests:**
-
-- ci: modernize GitHub workflows [\#25](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/25) ([JarbasAl](https://github.com/JarbasAl))
-- fix\(i18n\): normalize locale folders to canonical BCP-47 [\#24](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/24) ([JarbasAl](https://github.com/JarbasAl))
-
-## [0.2.4a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.4a1) (2026-03-24)
-
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.3a1...0.2.4a1)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.7a1...0.2.7a2)
 
 **Merged pull requests:**
 
-- fix: rename bare lang code locale directories [\#18](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/18) ([ovos-localize[bot]](https://github.com/apps/ovos-localize))
+- refactor: migrate WordOfTheDayIntent to an intent file [\#44](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/44) ([JarbasAl](https://github.com/JarbasAl))
 
-## [0.2.3a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.3a1) (2026-03-24)
+## [0.2.7a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.7a1) (2026-08-26)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.2a1...0.2.3a1)
-
-## [0.2.2a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.2a1) (2026-03-24)
-
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.1a1...0.2.2a1)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.6a3...0.2.7a1)
 
 **Merged pull requests:**
 
-- fix: rename bare lang code locale directories [\#19](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/19) ([ovos-localize[bot]](https://github.com/apps/ovos-localize))
-- Add French runtime word-of-the-day support [\#17](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/17) ([goldyfruit](https://github.com/goldyfruit))
-- Add French word-of-the-day locale [\#16](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/16) ([goldyfruit](https://github.com/goldyfruit))
+- fix: rename bare lang code locale directories [\#42](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/42) ([ovos-localize[bot]](https://github.com/apps/ovos-localize))
 
-## [0.2.1a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.1a1) (2026-01-19)
+## [0.2.6a3](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.6a3) (2026-08-25)
 
-[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.0...0.2.1a1)
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.6a2...0.2.6a3)
 
 **Merged pull requests:**
 
-- gl-es/translate [\#15](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/15) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
-- es-es/translate [\#14](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/14) ([gitlocalize-app[bot]](https://github.com/apps/gitlocalize-app))
+- translate\(kab-DZ\): update word.of.day.dialog [\#40](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/40) ([ovos-localize[bot]](https://github.com/apps/ovos-localize))
+- translate\(kab-DZ\): update unknown.wod.dialog [\#39](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/39) ([ovos-localize[bot]](https://github.com/apps/ovos-localize))
+- translate\(kab-DZ\): update WordOfTheDayKeyword.voc [\#38](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/38) ([ovos-localize[bot]](https://github.com/apps/ovos-localize))
+
+## [0.2.6a2](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.6a2) (2026-08-12)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.6a1...0.2.6a2)
+
+**Merged pull requests:**
+
+- test: add golden-utterance e2e suite [\#36](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/36) ([JarbasAl](https://github.com/JarbasAl))
+
+## [0.2.6a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.6a1) (2026-08-01)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.5...0.2.6a1)
+
+**Merged pull requests:**
+
+- docs: rewrite README in Simplified Technical English [\#34](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/34) ([JarbasAl](https://github.com/JarbasAl))
 
 
 

@@ -14,11 +14,13 @@ requires-python = ">=3.10"
 dependencies = [
     "requests",
     "bs4",
-    "ovos-workshop",
+    "ovos-workshop>=9.6.0a1,<10.0.0",
+    "ovos-bus-client>=2.8.0a1",
+    "ovos-date-parser",
 ]
 
 [project.optional-dependencies]
-test = ["pytest", "ovoscope"]
+test = ["pytest", "pytest-timeout", "ovoscope", "ovos-adapt-parser", "ovos-spec-tools"]
 
 [project.urls]
 Homepage = "https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day"
