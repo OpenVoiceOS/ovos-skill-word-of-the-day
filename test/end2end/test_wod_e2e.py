@@ -1,6 +1,6 @@
 """End-to-end tests for WordOfTheDaySkill via ovoscope.
 
-Verifies that the adapt intent `WordOfTheDayIntent` matches for each supported
+Verifies that the adapt intent `word_of_the_day` matches for each supported
 language and that the handler runs to completion. Parser functions that fetch
 the word from external sites are monkey-patched so tests run offline.
 
@@ -92,7 +92,7 @@ class _WODBase(TestCase):
             {"session": session.serialize()},
         )
 
-        intent_msg = f"{SKILL_ID}:WordOfTheDayIntent"
+        intent_msg = f"{SKILL_ID}:word_of_the_day"
 
         test = End2EndTest(
             minicroft=self.minicroft,
