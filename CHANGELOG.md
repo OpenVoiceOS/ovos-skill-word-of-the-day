@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.3.0a1) (2026-09-06)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.7a2...0.3.0a1)
+
+**Merged pull requests:**
+
+- feat: migrate SpellWodIntent to a session-context file intent [\#48](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/48) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.2.7a2](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.2.7a2) (2026-09-02)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.7a1...0.2.7a2)
