@@ -4,10 +4,17 @@ import re
 import requests
 from typing import Optional, Union
 from bs4 import BeautifulSoup
+from ovos_bus_client.session import SessionManager
+from ovos_date_parser import extract_datetime
 from ovos_workshop.decorators import intent_handler
 from ovos_workshop.skills.auto_translatable import OVOSSkill
 from ovos_utils.log import LOG
 from ovos_utils.time import now_local
+
+# OVOS-CONTEXT-1 shared-scope key holding the last word of the day spoken
+# (today's word or a recalled past word), so a follow-up "spell that" can
+# spell it out without repeating it.
+PREV_WOD_WORD_CONTEXT = "prev_wod_word"
 
 
 REQUEST_TIMEOUT = 20
@@ -18,6 +25,9 @@ REQUEST_HEADERS = {
 FR_WIKTIONARY_API = "https://fr.wiktionary.org/w/api.php"
 FR_WIKTIONARY_PAGE = "Wiktionnaire:Page d’accueil"
 DICTIONARY_WOD_URL = "https://www.dictionary.com/e/word-of-the-day"
+# how many past words to keep in `self.settings["word_history"]`, keyed by
+# ISO date ("YYYY-MM-DD"); oldest entries are dropped once the cap is hit
+MAX_WORD_HISTORY = 30
 
 
 def _http_get(url, **kwargs):
@@ -228,6 +238,24 @@ def get_wod_fr():
 
 class WordOfTheDaySkill(OVOSSkill):
 
+    def _remember_word(self, date: datetime.date, word: str):
+        """Persist `word` as the word of the day for `date` in settings.
+
+        Keyed by ISO date so lookups from `handle_past_word_intent` are a
+        plain dict get; capped at `MAX_WORD_HISTORY` entries, dropping the
+        oldest dates first (ISO keys sort lexicographically).
+        """
+        history = dict(self.settings.get("word_history") or {})
+        history[date.strftime("%Y-%m-%d")] = word
+        if len(history) > MAX_WORD_HISTORY:
+            for key in sorted(history)[:len(history) - MAX_WORD_HISTORY]:
+                del history[key]
+        self.settings["word_history"] = history
+
+    def _recall_word(self, date: datetime.date) -> Optional[str]:
+        history = self.settings.get("word_history") or {}
+        return history.get(date.strftime("%Y-%m-%d"))
+
     @intent_handler("WordOfTheDayIntent.intent")
     def handle_word_of_the_day_intent(self, message):
         lang = self.lang.lower()
@@ -253,6 +281,53 @@ class WordOfTheDaySkill(OVOSSkill):
             self.speak_dialog("unknown.wod")
             return
 
+        self._remember_word(now_local().date(), wod)
         self.speak_dialog("word.of.day", {"word": wod})
         self.gui.show_text(definition, wod)
         self.speak(definition)
+        SessionManager.get(message).set_intent_context(
+            PREV_WOD_WORD_CONTEXT, wod, scope="shared", turns_remaining=3)
+
+    @intent_handler("past_word.intent")
+    def handle_past_word_intent(self, message):
+        date_slot = message.data.get("date")
+        utt = date_slot or message.data.get("utterance") or ""
+        try:
+            date = extract_datetime(utt, lang=self.lang)[0].date()
+        except Exception:
+            LOG.exception(f"failed to extract date in {self.lang} from {utt}")
+            if date_slot:
+                # a {date} slot WAS captured but could not be parsed - speak
+                # the "no history" dialog instead of silently answering about
+                # yesterday, which would misattribute the answer to a date
+                # the user never asked about.
+                self.speak_dialog("no.word.history")
+                return
+            date = now_local().date() - datetime.timedelta(days=1)
+
+        word = self._recall_word(date)
+        if not word:
+            self.speak_dialog("no.word.history")
+            return
+
+        self.speak_dialog("word.of.day", {"word": word})
+        SessionManager.get(message).set_intent_context(
+            PREV_WOD_WORD_CONTEXT, word, scope="shared", turns_remaining=3)
+
+    @intent_handler("SpellWod.intent",
+                     requires_context=[{"key": PREV_WOD_WORD_CONTEXT, "scope": "shared"}])
+    def handle_spell_wod_intent(self, message):
+        """Spell out the word from the active "prev_wod_word" conversation
+        context. Gated on OVOS-CONTEXT-1 ``requires_context`` rather than a
+        keyword vocab: "spell that"/"spell it" carry no word of their own,
+        they only make sense as a follow-up to an answer that already set
+        the context.
+        """
+        session = SessionManager.get(message)
+        entry = (session.intent_context or {}).get(PREV_WOD_WORD_CONTEXT)
+        if not isinstance(entry, dict) or not entry.get("value"):
+            self.speak_dialog("no.word.history")
+            return
+        word = entry["value"]
+        letters = " ".join(f"{letter}." for letter in word)
+        self.speak_dialog("spell.word", {"word": word, "letters": letters})
