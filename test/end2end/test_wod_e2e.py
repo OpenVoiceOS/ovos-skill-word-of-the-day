@@ -124,7 +124,16 @@ class _WODBase(TestCase):
                 Message(SpecMessage.UTTERANCE_HANDLED.value, {}, {"skill_id": SKILL_ID}),
             ],
         )
-        test.execute(timeout=30)
+        messages = test.execute(timeout=30)
+
+        # expected_messages above asserts routing (exact message sequence)
+        # but leaves SPEAK.data unchecked (empty dict = "don't care"), so it
+        # would pass even if the dialog rendered a template placeholder
+        # instead of the fetched word. Assert the actual spoken content
+        # names the (fake, monkeypatched) word.
+        spoken = [m.data.get("utterance", "") for m in messages
+                  if m.msg_type in ("speak", "ovos.utterance.speak")]
+        self.assertTrue(any("testword" in u for u in spoken), spoken)
 
 
 class TestWODEnglish(_WODBase):

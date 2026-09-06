@@ -1,1 +1,2 @@
 {"skill_id": "ovos-skill-word-of-the-day.openvoiceos", "utterance": "tell me the word of the day", "intent_method": "handle_word_of_the_day_intent", "intent_label": "WordOfTheDayIntent", "intent_type": "adapt", "expected_messages": ["speak"], "needs_manual": false}
+{"skill_id": "ovos-skill-word-of-the-day.openvoiceos", "utterance": "what was yesterday's word", "intent_method": "handle_past_word_intent", "intent_label": "past_word", "intent_type": "adapt", "expected_messages": ["speak"], "needs_manual": false}
