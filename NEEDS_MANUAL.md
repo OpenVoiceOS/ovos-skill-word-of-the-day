@@ -1,23 +1,19 @@
-# Locale gaps needing a native speaker
+# Locale content needing native review
 
-`en-US` ships three intents: `word_of_the_day.intent`, `past_word.intent`
-("what was yesterday's word"), and `spell_wod.intent` ("spell that").
+Every locale ships the same three intents: `word_of_the_day.intent`,
+`past_word.intent` ("what was yesterday's word", "what was the word of the
+day on {date}"), and `spell_wod.intent` ("spell that").
 
-Every other locale (`ca-ES`, `da-DK`, `de-DE`, `es-ES`, `fr-FR`, `gl-ES`,
-`kab`, `pt-PT`) ships only `word_of_the_day.intent`. Their existing `.voc`
-and `.dialog` files contain no phrasing for "yesterday", "on {date}", or
-"spell that/it" — there is no shipped content to source a `past_word.intent`
-or `spell_wod.intent` from for these locales, so none were added. Inventing
-translations would risk shipping a wrong or unnatural sentence, which is
-worse than the gap.
+The `past_word.intent` and `spell_wod.intent` lines for `ca-ES`, `da-DK`,
+`de-DE`, `es-ES`, `fr-FR`, `gl-ES`, `kab`, and `pt-PT` were written by a
+language model and have not been reviewed by a native speaker. They are
+candidates for review, not verified translations. `kab` (Kabyle) is
+lower confidence than the others: it uses a less common language for
+LLM output and its `word_of_the_day.intent` orthography could not be
+cross-checked against an independent source.
 
-A native speaker of each locale needs to contribute the phrasing for:
-
-- `past_word.intent` — asking for the word of the day on a past date
-  (e.g. "yesterday's word", "the word of the day on {date}")
-- `spell_wod.intent` — a follow-up "spell that" / "spell it" utterance
-- `no.word.history.dialog` / `spell.word.dialog` — the dialogs those two
-  intents speak (only `en-US` has them)
-
-Until then, `handle_past_word_intent` and `handle_spell_wod_intent` are
-reachable only in `en-US`.
+`no.word.history.dialog` and `spell.word.dialog` — the dialogs
+`past_word.intent` and `spell_wod.intent` speak — still exist only for
+`en-US`. A native speaker of each other locale needs to add them; until
+then, the two intents will parse and route in every locale, but the
+spoken response they produce in a non-`en-US` locale is untested.
