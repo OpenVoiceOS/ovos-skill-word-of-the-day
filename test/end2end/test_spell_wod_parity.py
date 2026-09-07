@@ -1,5 +1,5 @@
 """Parity coverage for every "spell that" phrasing accepted by
-``SpellWod.intent`` (the file-intent migration of the Adapt-era
+``spell_wod.intent`` (the file-intent migration of the Adapt-era
 ``SpellWodIntent``, gated on the ``spell_wod.voc`` wording plus the
 "prev_wod_word" context). Each phrasing must resolve to
 ``handle_spell_wod_intent`` when the session already carries an active
@@ -30,7 +30,7 @@ _PIPELINE = [
 
 _IGNORE = ["mycroft.audio.play_sound"]
 
-# every SpellWod.intent template line, verbatim
+# every spell_wod.intent template line, verbatim
 SPELL_PHRASINGS = [
     "spell that",
     "spell that word",
