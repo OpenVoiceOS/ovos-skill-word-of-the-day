@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0a2](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.4.0a2) (2026-09-07)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.4.0a1...0.4.0a2)
+
+**Merged pull requests:**
+
+- chore: drop unused ovos-adapt-parser dependency [\#54](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/54) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.4.0a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.4.0a1) (2026-09-07)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.3.0a1...0.4.0a1)
