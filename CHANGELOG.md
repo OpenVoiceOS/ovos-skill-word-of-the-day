@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.0a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.4.0a1) (2026-09-07)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.3.0a1...0.4.0a1)
+
+**Merged pull requests:**
+
+- feat: eu-ES it-IT pt-BR nl-NL sv-SE locale parity [\#52](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/52) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.3.0a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.3.0a1) (2026-09-06)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.2.7a2...0.3.0a1)
