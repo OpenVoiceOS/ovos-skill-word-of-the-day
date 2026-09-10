@@ -256,7 +256,7 @@ class WordOfTheDaySkill(OVOSSkill):
         history = self.settings.get("word_history") or {}
         return history.get(date.strftime("%Y-%m-%d"))
 
-    @intent_handler("WordOfTheDayIntent.intent")
+    @intent_handler("word_of_the_day.intent")
     def handle_word_of_the_day_intent(self, message):
         lang = self.lang.lower()
         primary_lang = lang.split("-")[0]
@@ -314,7 +314,7 @@ class WordOfTheDaySkill(OVOSSkill):
         SessionManager.get(message).set_intent_context(
             PREV_WOD_WORD_CONTEXT, word, scope="shared", turns_remaining=3)
 
-    @intent_handler("SpellWod.intent",
+    @intent_handler("spell_wod.intent",
                      requires_context=[{"key": PREV_WOD_WORD_CONTEXT, "scope": "shared"}])
     def handle_spell_wod_intent(self, message):
         """Spell out the word from the active "prev_wod_word" conversation

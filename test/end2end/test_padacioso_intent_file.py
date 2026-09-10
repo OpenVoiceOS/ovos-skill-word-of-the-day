@@ -1,7 +1,7 @@
-"""Proves ``WordOfTheDayIntent`` is registered from an ``.intent`` file, not
+"""Proves ``word_of_the_day`` is registered from an ``.intent`` file, not
 adapt vocabulary.
 
-``WordOfTheDayIntent`` used to be an ``IntentBuilder(...).require(...)``
+``word_of_the_day`` used to be an ``IntentBuilder(...).require(...)``
 registration, which only the adapt pipeline can match. This test runs a
 MiniCroft with adapt excluded from the session pipeline (only the
 padacioso -- keyword-free, regex-based -- pipeline is active) and asserts
@@ -29,7 +29,7 @@ from ovos_utils.log import LOG  # noqa: E402
 from ovoscope import End2EndTest, get_minicroft  # noqa: E402
 
 SKILL_ID = "ovos-skill-word-of-the-day.openvoiceos"
-INTENT = f"{SKILL_ID}:WordOfTheDayIntent"
+INTENT = f"{SKILL_ID}:word_of_the_day"
 
 # no adapt pipeline stage on purpose: only a keyword-free/regex intent
 # matcher is active, so a match here can only come from the .intent file.
