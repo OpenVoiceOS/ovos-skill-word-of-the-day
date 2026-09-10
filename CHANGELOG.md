@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.4.1a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.4.1a1) (2026-09-10)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.4.0a2...0.4.1a1)
+
+**Merged pull requests:**
+
+- translate\(da-DK\): add missing no.word.history.dialog and spell.word.dialog [\#56](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/56) ([andlo](https://github.com/andlo))
+- fix: snake\_case intent names; flag missing past\_word/spell\_wod locales [\#50](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/50) ([JarbasAl](https://github.com/JarbasAl))
+
 ## [0.4.0a2](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.4.0a2) (2026-09-07)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.4.0a1...0.4.0a2)
