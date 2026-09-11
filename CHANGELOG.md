@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.4.1a2](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.4.1a2) (2026-09-11)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.4.1a1...0.4.1a2)
+
+**Merged pull requests:**
+
+- translate\(kab\): update word\_of\_the\_day.intent [\#62](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/62) ([ovos-localize[bot]](https://github.com/apps/ovos-localize))
+- translate\(kab\): update unknown.wod.dialog [\#61](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/61) ([ovos-localize[bot]](https://github.com/apps/ovos-localize))
+- translate\(kab\): update word.of.day.dialog [\#60](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/60) ([ovos-localize[bot]](https://github.com/apps/ovos-localize))
+- translate\(kab\): update past\_word.intent [\#59](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/59) ([ovos-localize[bot]](https://github.com/apps/ovos-localize))
+
 ## [0.4.1a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.4.1a1) (2026-09-10)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.4.0a2...0.4.1a1)
