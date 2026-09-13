@@ -96,7 +96,7 @@ def test_handler_speaks_unknown_when_source_fails(monkeypatch):
     instance = make_skill_instance()
     skill.WordOfTheDaySkill.handle_word_of_the_day_intent(instance, None)
 
-    assert instance.dialogs == [("unknown.wod", None)]
+    assert instance.dialogs == [("unknown_wod", None)]
     assert instance.gui.text == []
     assert instance.speech == []
     assert log.exceptions == ["Failed to retrieve word of the day"]

@@ -94,7 +94,7 @@ def test_past_word_intent_answers_from_history(monkeypatch):
         mock_sm.get.return_value = session
         instance.handle_past_word_intent(message)
 
-    assert instance.dialogs == [("word.of.day", {"word": "petrichor"})]
+    assert instance.dialogs == [("word_of_day", {"word": "petrichor"})]
     assert session.intent_context["prev_wod_word"]["value"] == "petrichor"
 
 
@@ -108,14 +108,14 @@ def test_past_word_intent_speaks_history_dialog_when_nothing_recorded():
         mock_sm.get.return_value = session
         instance.handle_past_word_intent(message)
 
-    assert instance.dialogs == [("no.word.history", None)]
+    assert instance.dialogs == [("no_word_history", None)]
     assert session.intent_context == {}
 
 
 def test_past_word_intent_with_unparseable_date_slot_speaks_history_dialog():
     """A garbled {date} slot must NOT silently fall back to yesterday's
     word: extract_datetime returns None for it, so the handler must speak
-    no.word.history rather than misattributing yesterday's word to the date
+    no_word_history rather than misattributing yesterday's word to the date
     the user actually asked about."""
     yesterday = skill.now_local().date() - datetime.timedelta(days=1)
     instance = make_skill_instance(
@@ -132,7 +132,7 @@ def test_past_word_intent_with_unparseable_date_slot_speaks_history_dialog():
         mock_sm.get.return_value = session
         instance.handle_past_word_intent(message)
 
-    assert instance.dialogs == [("no.word.history", None)]
+    assert instance.dialogs == [("no_word_history", None)]
     assert session.intent_context == {}
 
 
@@ -147,7 +147,7 @@ def test_spell_wod_intent_spells_out_the_context_word():
         instance.handle_spell_wod_intent(message)
 
     assert instance.dialogs == [
-        ("spell.word", {"word": "book", "letters": "b. o. o. k."})
+        ("spell_word", {"word": "book", "letters": "b. o. o. k."})
     ]
 
 
@@ -161,4 +161,4 @@ def test_spell_wod_intent_without_context_speaks_history_dialog():
         mock_sm.get.return_value = session
         instance.handle_spell_wod_intent(message)
 
-    assert instance.dialogs == [("no.word.history", None)]
+    assert instance.dialogs == [("no_word_history", None)]
