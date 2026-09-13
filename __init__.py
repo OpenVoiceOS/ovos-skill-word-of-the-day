@@ -274,15 +274,15 @@ class WordOfTheDaySkill(OVOSSkill):
             elif primary_lang == "gl":
                 wod, definition = get_wod_gl()
             else:
-                self.speak_dialog("unknown.wod")
+                self.speak_dialog("unknown_wod")
                 return
         except Exception:
             LOG.exception("Failed to retrieve word of the day")
-            self.speak_dialog("unknown.wod")
+            self.speak_dialog("unknown_wod")
             return
 
         self._remember_word(now_local().date(), wod)
-        self.speak_dialog("word.of.day", {"word": wod})
+        self.speak_dialog("word_of_day", {"word": wod})
         self.gui.show_text(definition, wod)
         self.speak(definition)
         SessionManager.get(message).set_intent_context(
@@ -301,16 +301,16 @@ class WordOfTheDaySkill(OVOSSkill):
                 # the "no history" dialog instead of silently answering about
                 # yesterday, which would misattribute the answer to a date
                 # the user never asked about.
-                self.speak_dialog("no.word.history")
+                self.speak_dialog("no_word_history")
                 return
             date = now_local().date() - datetime.timedelta(days=1)
 
         word = self._recall_word(date)
         if not word:
-            self.speak_dialog("no.word.history")
+            self.speak_dialog("no_word_history")
             return
 
-        self.speak_dialog("word.of.day", {"word": word})
+        self.speak_dialog("word_of_day", {"word": word})
         SessionManager.get(message).set_intent_context(
             PREV_WOD_WORD_CONTEXT, word, scope="shared", turns_remaining=3)
 
@@ -326,8 +326,8 @@ class WordOfTheDaySkill(OVOSSkill):
         session = SessionManager.get(message)
         entry = (session.intent_context or {}).get(PREV_WOD_WORD_CONTEXT)
         if not isinstance(entry, dict) or not entry.get("value"):
-            self.speak_dialog("no.word.history")
+            self.speak_dialog("no_word_history")
             return
         word = entry["value"]
         letters = " ".join(f"{letter}." for letter in word)
-        self.speak_dialog("spell.word", {"word": word, "letters": letters})
+        self.speak_dialog("spell_word", {"word": word, "letters": letters})
