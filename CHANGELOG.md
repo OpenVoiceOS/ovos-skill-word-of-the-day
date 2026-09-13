@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.1a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.5.1a1) (2026-09-13)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.5.0a1...0.5.1a1)
+
+**Merged pull requests:**
+
+- fix\(locale\): word-of-the-day review fixes \(gl-ES spell intent, five MT lines\) [\#68](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/68) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.5.0a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.5.0a1) (2026-09-13)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.4.1a4...0.5.0a1)
