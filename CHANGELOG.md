@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.5.0a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.5.0a1) (2026-09-13)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.4.1a4...0.5.0a1)
+
+**Merged pull requests:**
+
+- feat: locale parity for past\_word and spell\_wod \(14 .intent + 11 dialog/voc, 7 locales\) [\#66](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/66) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.4.1a4](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.4.1a4) (2026-09-11)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.4.1a3...0.4.1a4)
