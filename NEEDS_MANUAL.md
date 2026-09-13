@@ -6,30 +6,35 @@ word"), and `spell_wod.intent` ("spell that"), plus all four dialogs
 (`word.of.day.dialog`, `unknown.wod.dialog`, `no.word.history.dialog`,
 `spell.word.dialog`).
 
-`ca-ES`, `da-DK`, `de-DE`, `es-ES`, `fr-FR`, `gl-ES`, `kab`, and `pt-PT` ship
-only `word_of_the_day.intent` with `word.of.day.dialog` and
-`unknown.wod.dialog`. Their `.voc` and `.dialog` files contain no phrasing
-for "yesterday", "on {date}", or "spell that/it".
+`ca-ES`, `da-DK`, `de-DE`, `es-ES`, `fr-FR`, `gl-ES`, and `pt-PT` now also
+ship `past_word.intent` and `spell_wod.intent`, machine-translated from the
+en-US phrasing (`.intent` lines, `google.com/translate`-grade output — a
+candidate for review, not a verified translation). `kab` still has neither:
+linguonnx has no permissive route into Kabyle, and inventing the phrasing by
+hand risks a wrong or unnatural sentence, worse than the gap.
 
-There is no shipped content to source a `past_word.intent` or
-`spell_wod.intent` from for those locales, so none were added. Inventing
-translations would risk shipping a wrong or unnatural sentence. That risk
-is worse than the gap.
+`ca-ES`, `de-DE`, `es-ES`, `fr-FR`, `gl-ES`, and `pt-PT` also gained
+`no.word.history.dialog` (machine-translated). `da-DK` already had it.
+`ca-ES`, `de-DE`, `es-ES`, `fr-FR`, and `pt-PT` gained `spell.word.dialog`
+too; `gl-ES` did not — every attempt translating "{word} is spelled
+{letters}" through `nos-coda_iacobus-en-gl-int8` either dropped a `{slot}`
+or produced unrelated text, so the line was dropped rather than shipped
+broken. `gl-ES/spell.word.dialog` still needs a native speaker (or a better
+Galician route) to write directly.
 
-`da-DK` is a partial exception. It carries `no.word.history.dialog` and
-`spell.word.dialog` translations with no `past_word.intent` or
-`spell_wod.intent` to trigger them. Those two dialogs stay unreachable
-there until the matching intents exist.
+`kab` still ships only `word_of_the_day.intent` with `word.of.day.dialog`
+and `unknown.wod.dialog`.
 
-A native speaker of each locale without the full set needs to contribute
-the phrasing for:
+A native speaker of each locale below needs to review or contribute:
 
-- `past_word.intent`: asking for the word of the day on a past date
-  (e.g. "yesterday's word", "the word of the day on {date}")
-- `spell_wod.intent`: a follow-up "spell that" / "spell it" utterance
-- `no.word.history.dialog` / `spell.word.dialog`: the dialogs those two
-  intents speak
+- `kab`: `past_word.intent`, `spell_wod.intent`, `no.word.history.dialog`,
+  `spell.word.dialog` — all four, from scratch.
+- `ca-ES`, `da-DK`, `de-DE`, `es-ES`, `fr-FR`, `pt-PT`: review the
+  machine-translated `past_word.intent` and `spell_wod.intent` phrasing.
+- `ca-ES`, `de-DE`, `es-ES`, `fr-FR`, `pt-PT`: review the machine-translated
+  `no.word.history.dialog` and `spell.word.dialog` text.
+- `gl-ES`: review `past_word.intent`, `spell_wod.intent`, and
+  `no.word.history.dialog`; write `spell.word.dialog` directly.
 
-Until a locale gets that phrasing, `handle_past_word_intent` and
-`handle_spell_wod_intent` stay reachable only in the six locales with the
-full set.
+Until `kab` gets that phrasing, `handle_past_word_intent` and
+`handle_spell_wod_intent` stay unreachable there.
