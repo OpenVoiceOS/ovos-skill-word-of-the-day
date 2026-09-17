@@ -1,0 +1,14 @@
+# Follow-up "spell that" for the last word of the day spoken (today's word
+# or a recalled past word). Every line here is a phrasing this skill should
+# accept -- the spell_wod.voc phrasings carried over verbatim, plus natural
+# variants. This template has no meaning on its own: it only fires when the
+# "prev_wod_word" session context is active (requires_context on the
+# handler), never on the bare utterance with nothing looked up first.
+stava det [ordet]
+hur stavar man det
+stava det [åt mig]
+hur stavar du det
+stava det bokstav för bokstav
+stava det åt mig
+kan du stava det
+kan du stava det åt mig
