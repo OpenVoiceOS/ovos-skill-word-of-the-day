@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.0a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.6.0a1) (2026-09-17)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.5.2a1...0.6.0a1)
+
+**Merged pull requests:**
+
+- feat\(locale\): fill kab gap against en-US [\#74](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/74) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.5.2a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.5.2a1) (2026-09-13)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.5.1a1...0.5.2a1)
