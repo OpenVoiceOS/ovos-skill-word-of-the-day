@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.0a3](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.7.0a3) (2026-09-17)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.7.0a2...0.7.0a3)
+
+**Merged pull requests:**
+
+- test: golden utterances for every locale [\#78](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/78) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.7.0a2](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.7.0a2) (2026-09-17)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.7.0a1...0.7.0a2)
