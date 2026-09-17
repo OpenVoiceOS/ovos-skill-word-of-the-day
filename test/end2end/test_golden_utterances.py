@@ -1,6 +1,6 @@
 """Golden-utterance end-to-end coverage for ovos-skill-word-of-the-day (en-US).
 
-The golden corpus (``golden_utterances.jsonl``) is a vendored slice of the
+The golden corpus (``golden_utterances_en-US.jsonl``) is a vendored slice of the
 shared ovoscope golden-utterance dataset, keyed by
 ``skill_id == "ovos-skill-word-of-the-day.openvoiceos"`` (matches this
 skill's real OPM entry point too). The corpus only has one row for this
@@ -33,7 +33,7 @@ _IGNORE = [
     "recognizer_loop:audio_output_end",
 ]
 
-GOLDEN_PATH = Path(__file__).parent / "golden_utterances.jsonl"
+GOLDEN_PATH = Path(__file__).parent / "golden_utterances_en-US.jsonl"
 
 
 def _patch_parsers():
@@ -81,6 +81,13 @@ def _load_golden_rows():
                 continue
             row = json.loads(line)
             if row.get("needs_manual"):
+                continue
+            if row.get("requires_context"):
+                # spell_wod.intent only fires with the "prev_wod_word"
+                # session context active; this suite's _types() never sets
+                # session context. test_golden_utterances_multilang.py and
+                # test_spell_wod_parity.py cover those rows with the
+                # context seeded.
                 continue
             rows.append(row)
     return rows
