@@ -1,3 +1,12 @@
+# Kabyle follow-up "spell that" phrasings for the word of the day.
+# The first three lines are athmanemokraoui's own wording, from his inline
+# review on pull request #51 at 5b1d5c9f. That pull request was closed, so
+# they never landed. The lines below them were filled by ovos-bot in #74 and
+# no speaker has read them: they are unvouched.
+sekcem-it-id s isekkilen
+amek ara t-id-taruḍ
+Siskel-d awal s isekkilen
+# unvouched, from #74:
 sefru-t [awal]
 amek ara t-tsefruḍ (aya|nettat)
 sefru-t [i yi-]
