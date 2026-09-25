@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.1a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.7.1a1) (2026-09-25)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.7.0a3...0.7.1a1)
+
+**Merged pull requests:**
+
+- fix\(kab\): restore the three spell\_wod lines a speaker corrected [\#80](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/80) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.7.0a3](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.7.0a3) (2026-09-17)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.7.0a2...0.7.0a3)
