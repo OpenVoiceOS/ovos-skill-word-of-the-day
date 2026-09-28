@@ -1,0 +1,17 @@
+{
+  "skill_id": "ovos-skill-word-of-the-day.openvoiceos",
+  "source": "https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day",
+  "name": "Word Of The Day",
+  "description": "Speak the word of the day and spell it on request.",
+  "examples": [
+    "کلمه دیروز را به من بگو",
+    "چطور هجی می شود",
+    "کلمه روز"
+  ],
+  "tags": [
+    "word-of-the-day",
+    "dictionary",
+    "vocabulary",
+    "daily"
+  ]
+}
