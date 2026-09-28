@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.7.1a2](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.7.1a2) (2026-09-28)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.7.1a1...0.7.1a2)
+
+**Merged pull requests:**
+
+- locale: draft es-CO fa-IR pl-PL ru-RU from en-US \(machine translation, unvouched\) [\#82](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/82) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.7.1a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.7.1a1) (2026-09-25)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.7.0a3...0.7.1a1)
