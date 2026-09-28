@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.0a1](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.8.0a1) (2026-09-28)
+
+[Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.7.1a2...0.8.0a1)
+
+**Merged pull requests:**
+
+- feat: skill.json for the store, en-US and its locales [\#84](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/pull/84) ([openvoiceos-bot](https://github.com/openvoiceos-bot))
+
 ## [0.7.1a2](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/tree/0.7.1a2) (2026-09-28)
 
 [Full Changelog](https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day/compare/0.7.1a1...0.7.1a2)
