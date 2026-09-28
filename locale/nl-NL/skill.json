@@ -1,0 +1,17 @@
+{
+  "skill_id": "ovos-skill-word-of-the-day.openvoiceos",
+  "source": "https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day",
+  "name": "Word Of The Day",
+  "description": "Speak the word of the day and spell it on request.",
+  "examples": [
+    "vertel me het woord van gisteren",
+    "spel het uit",
+    "wat is het woord van de dag"
+  ],
+  "tags": [
+    "word-of-the-day",
+    "dictionary",
+    "vocabulary",
+    "daily"
+  ]
+}
