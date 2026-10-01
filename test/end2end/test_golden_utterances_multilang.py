@@ -8,6 +8,11 @@ suite gives each of them a golden row set derived mechanically from that
 locale's own template files (see golden_utterances_<lang>.jsonl and the
 generator that produced them).
 
+Every golden_utterances_<lang>.jsonl file in this directory is collected,
+and every row in it runs, including machine-generated rows marked
+needs_manual: true; that flag records that no native speaker vouched for
+the sentence, not that the row is exempt from routing.
+
 One MiniCroft is booted PER LOCALE in turn (ovos-skill-alerts' shared-
 MiniCroft multilang pattern is skipped on dev there for a known ovoscope
 harness bug when many secondary_langs are booted at once; the per-locale
@@ -48,8 +53,8 @@ _IGNORE = [
 
 END2END_DIR = Path(__file__).parent
 
-LANGS = ["ca-ES", "da-DK", "de-DE", "en-US", "es-ES", "eu-ES", "fr-FR",
-         "gl-ES", "it-IT", "kab", "nl-NL", "pt-BR", "pt-PT", "sv-SE"]
+LANGS = sorted(p.stem.removeprefix("golden_utterances_")
+               for p in END2END_DIR.glob("golden_utterances_*.jsonl"))
 
 
 def _patch_parsers():
@@ -77,10 +82,7 @@ def _load_rows(lang):
             line = line.strip()
             if not line:
                 continue
-            row = json.loads(line)
-            if row.get("needs_manual"):
-                continue
-            rows.append(row)
+            rows.append(json.loads(line))
     return rows
 
 
