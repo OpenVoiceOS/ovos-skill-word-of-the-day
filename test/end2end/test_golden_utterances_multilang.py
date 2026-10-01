@@ -136,3 +136,13 @@ def test_golden_utterances_per_locale(locale_minicroft):
                 f"{row['utterance']!r}: expected {SKILL_ID}:{row['intent_label']}, got {types!r}"
             )
     assert not failures, "\n".join(failures)
+
+
+def test_every_shipping_locale_has_a_golden_file():
+    golden = {p.stem.split("_", 2)[2]
+              for p in END2END_DIR.glob("golden_utterances_*.jsonl")}
+    locale_root = END2END_DIR.parent.parent / "locale"
+    shipping = {d.name for d in locale_root.iterdir()
+                if d.is_dir() and any(d.rglob("*.intent"))}
+    assert golden == shipping, \
+        f"golden files {sorted(golden ^ shipping)} differ from shipping locales"
