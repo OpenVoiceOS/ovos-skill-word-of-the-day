@@ -94,7 +94,7 @@ def test_handler_speaks_unknown_when_source_fails(monkeypatch):
     monkeypatch.setattr(skill, "get_wod", fail)
 
     instance = make_skill_instance()
-    skill.WordOfTheDaySkill.handle_word_of_the_day_intent(instance, None)
+    skill.WordOfTheDaySkill._speak_todays_word(instance, None)
 
     assert instance.dialogs == [("unknown_wod", None)]
     assert instance.gui.text == []

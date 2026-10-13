@@ -22,9 +22,7 @@ SKILL_ID = "ovos-skill-word-of-the-day.openvoiceos"
 LANG = "en-US"
 
 _PIPELINE = [
-    "ovos-padatious-pipeline-plugin-high",
     "ovos-padacioso-pipeline-plugin-high",
-    "ovos-padatious-pipeline-plugin-medium",
     "ovos-padacioso-pipeline-plugin-medium",
 ]
 

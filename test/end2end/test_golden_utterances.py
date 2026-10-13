@@ -1,156 +1,183 @@
-"""Golden-utterance end-to-end coverage for ovos-skill-word-of-the-day (en-US).
+"""Golden rows in every locale route to their intent on the m2v prototype pipeline.
 
-The golden corpus (``golden_utterances_en-US.jsonl``) is a vendored slice of the
-shared ovoscope golden-utterance dataset, keyed by
-``skill_id == "ovos-skill-word-of-the-day.openvoiceos"`` (matches this
-skill's real OPM entry point too). The corpus only has one row for this
-skill; it is still run through a real MiniCroft like the other repos in
-this campaign, asserting intent routing.
+For each ``golden_utterances_<lang>.jsonl`` in this directory, one MiniCroft
+loads the real skill in that language on the m2v prototype pipeline, the
+model2vec engine built at boot from the skill's own ``.intent`` files. Each
+row's utterance goes through that pipeline's high, medium and low tiers in
+order, and the row passes when the first tier to match names its
+``intent_label``. The engine embeds the utterance, so a row that no template
+spells out word for word still matches when it means the same thing.
 
-The word/definition sources are monkeypatched (same mechanism as the
-sibling ``test_wod_e2e.py``/``test_word_of_the_day_intent.py`` suites) so
-routing is exercised offline and deterministically.
+``spell_wod`` requires the shared ``prev_wod_word`` intent context, which the
+skill sets after it reads a word. Every row runs in a session that carries
+that context, as it is after a reading, so the follow-up intent competes with
+``word_of_the_day`` on every row.
+
+Each ``negative_utterances_<lang>.jsonl`` holds requests for other skills.
+They run in the same session and must not match any intent of this skill.
+
+Each locale must match at least ``MIN_MATCH_RATE`` of its golden rows, and at
+least ``MIN_MATCHED_ROWS_PER_INTENT`` rows of each intent. A locale listed in
+``GOLDEN_LOCALE_GAPS`` records its measured rate: its rate check is an
+expected failure, but the per-intent floor and a drop of more than
+``GAP_TOLERANCE`` below that rate still fail it. A negative row that
+matches this skill fails the locale, unless ``NEGATIVE_KNOWN_CLAIMS`` lists
+that claim. All rows run, including rows marked ``needs_manual`` or
+``machine_generated``, and the test prints every row that misses with the
+intent that matched instead.
 """
 import json
 from pathlib import Path
-from unittest.mock import patch
 
 import pytest
 from ovos_bus_client.message import Message
 from ovos_bus_client.session import Session
-from ovoscope import CaptureSession, get_minicroft
+from ovoscope import M2V_PUBLISHED_MODEL, get_m2v_minicroft
+from ovoscope.golden_minicroft import warm_m2v_models
 
 SKILL_ID = "ovos-skill-word-of-the-day.openvoiceos"
-LANG = "en-US"
-
-_PIPELINE = ["ovos-padacioso-pipeline-plugin-high"]
-
-_IGNORE = [
-    "speak",
-    "ovos.utterance.speak",
-    "mycroft.audio.play_sound",
-    "recognizer_loop:audio_output_start",
-    "recognizer_loop:audio_output_end",
-]
-
-GOLDEN_PATH = Path(__file__).parent / "golden_utterances_en-US.jsonl"
-
-
-def _patch_parsers():
-    fake = ("testword", "a word used in tests")
-    import ovos_skill_word_of_the_day as mod
-    targets = ["get_wod", "get_wod_pt", "get_wod_fr", "get_wod_ca", "get_wod_gl"]
-    return [patch.object(mod, name, return_value=fake) for name in targets if hasattr(mod, name)]
-
-
-# utterances lifted verbatim from OTHER skills' golden-utterance slices in
-# the shared ovoscope corpus, picked for lexical overlap with word-of-the-
-# day's "word"/"tell me" vocabulary -- includes the wolfie/wikipedia/wordnet
-# trio since single-word lookups are conceptually adjacent.
-NEGATIVE_UTTERANCES = [
-    ("can you tell me the weather", "ovos-skill-weather.openvoiceos"),
-    ("can you find something on wikipedia", "ovos-skill-wikipedia.openvoiceos"),
-    ("ask the wolf something", "ovos-skill-wolfie.openvoiceos"),
-    ("ask wordnet about word", "ovos-skill-wordnet.openvoiceos"),
-    ("search wikihow for something", "ovos-skill-wikihow.openvoiceos"),
-    ("can you spell word", "ovos-skill-spelling.openvoiceos"),
-    ("set an alarm", "ovos-skill-alerts.openvoiceos"),
-]
+M2V_PROTOTYPE = "ovos-m2v-prototype-pipeline"
+TIERS = ("high", "medium", "low")
+# m2v gives some rows a different answer on each boot, so the test gates on
+# the share of rows that match per locale, not on each row.
+MIN_MATCH_RATE = 0.8
+# A locale also fails when any of its intents has fewer matched rows than this.
+MIN_MATCHED_ROWS_PER_INTENT = 1
+END2END_DIR = Path(__file__).parent
+LOCALE_ROOT = END2END_DIR.parents[1] / "locale"
+# Locales whose golden rows match below MIN_MATCH_RATE on the published m2v
+# model, with the rate measured in two runs. The rate check of such a locale
+# is an expected failure. The locale still fails when any intent has no
+# matched row, when its rate falls more than GAP_TOLERANCE below the measured
+# rate, and when its rate reaches MIN_MATCH_RATE: the stale entry goes.
+GOLDEN_LOCALE_GAPS = {
+    "kab": (0.667, "requests that open with a desire verb fall below the m2v low tier"),
+}
+GAP_TOLERANCE = 0.10
+# Locales whose negative rows the published m2v model cannot separate from
+# this skill, with the measured reason.
+NEGATIVE_ENGINE_GAPS = {
+    "fa-IR": "the published m2v model matches every fa-IR negative to an intent of this skill",
+    "ru-RU": "the published m2v model matches 5 of 6 ru-RU negatives to an intent of this skill",
+}
+# Negative rows that m2v claimed for this skill in two separate runs. A listed
+# claim is allowed, not required, so a row that flips between boots does not
+# fail the test. Any other claim fails the locale.
+NEGATIVE_KNOWN_CLAIMS = {
+    "en-US": {"can you spell word": "spell_wod"},
+    "pl-PL": {"co znaczy słowo ulotny": "word_of_the_day"},
+}
 
 
-def _matches_intent(msg_type: str, skill_id: str, intent_label: str) -> bool:
-    """Tolerant matcher, same shape as the sibling repos' suites."""
-    prefix = f"{skill_id}:"
-    if not msg_type.startswith(prefix):
-        return False
-    observed = msg_type[len(prefix):]
-    observed_base = observed.rsplit(".", 1)[0] if observed.endswith(".intent") else observed
-    expected_base = intent_label.rsplit(".", 1)[0] if intent_label.endswith(".intent") else intent_label
-    return observed_base == expected_base
-
-
-_XFAIL_REASONS = {}
-
-
-def _load_golden_rows():
-    rows = []
-    with open(GOLDEN_PATH, encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            row = json.loads(line)
-            if row.get("needs_manual"):
-                continue
-            if row.get("requires_context"):
-                # spell_wod.intent only fires with the "prev_wod_word"
-                # session context active; this suite's _types() never sets
-                # session context. test_golden_utterances_multilang.py and
-                # test_spell_wod_parity.py cover those rows with the
-                # context seeded.
-                continue
-            rows.append(row)
+def _rows_by_lang(prefix):
+    rows = {}
+    for path in sorted(END2END_DIR.glob(f"{prefix}_*.jsonl")):
+        lang = path.stem.removeprefix(f"{prefix}_")
+        for number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if line.strip():
+                row = json.loads(line)
+                assert row["lang"] == lang, f"{path.name}:{number} has lang {row['lang']!r}"
+                rows.setdefault(lang, []).append(row)
     return rows
 
 
-def _as_param(row):
-    reason = _XFAIL_REASONS.get(row["utterance"])
-    if reason is None:
-        return pytest.param(row, id=row["utterance"])
-    return pytest.param(row, id=row["utterance"], marks=pytest.mark.xfail(reason=reason, strict=True))
+ROWS = _rows_by_lang("golden_utterances")
+NEGATIVE_ROWS = _rows_by_lang("negative_utterances")
 
 
-GOLDEN_ROWS = [_as_param(r) for r in _load_golden_rows()]
+def _session_after_a_reading(lang):
+    session = Session(f"golden-{lang}")
+    session.lang = lang
+    session.set_intent_context("prev_wod_word", "serendipity", scope="shared", turns_remaining=3)
+    return session.serialize()
 
 
-@pytest.fixture(scope="module")
-def minicroft():
-    patches = _patch_parsers()
-    for p in patches:
-        p.start()
-    mc = get_minicroft([SKILL_ID])
-    yield mc
-    mc.stop()
-    for p in patches:
-        p.stop()
+def _matched_intent(engine, utterance, lang):
+    message = Message("recognizer_loop:utterance",
+                      {"utterances": [utterance], "lang": lang},
+                      {"lang": lang, "session": _session_after_a_reading(lang)})
+    match = next(filter(None, (getattr(engine, f"match_{tier}")([utterance], lang, message)
+                               for tier in TIERS)), None)
+    return match.match_type if match else None
 
 
-def _types(mc, text, session_id):
-    session = Session(session_id)
-    session.lang = LANG
-    session.pipeline = list(_PIPELINE)
-    session.blacklisted_intents = []
-    utterance = Message(
-        "recognizer_loop:utterance",
-        {"utterances": [text], "lang": LANG},
-        {"session": session.serialize(), "source": "A", "destination": "B"},
+def _match_all(lang, rows):
+    """Boot the skill on m2v in ``lang`` and return the intent each row matches."""
+    minicroft = get_m2v_minicroft([SKILL_ID], model=M2V_PUBLISHED_MODEL,
+                                  lang=lang, classifier=False)
+    try:
+        warm_m2v_models(minicroft)
+        engine = minicroft.intents.pipeline_plugins[M2V_PROTOTYPE]
+        return [_matched_intent(engine, row["utterance"], lang) for row in rows]
+    finally:
+        minicroft.stop()
+
+
+@pytest.mark.timeout(900)
+@pytest.mark.parametrize("lang", sorted(ROWS))
+def test_golden_rows_match_their_intent(lang):
+    rows = ROWS[lang]
+    matched = _match_all(lang, rows)
+    misses = []
+    hits = {row["intent_label"]: 0 for row in rows}
+    for row, got in zip(rows, matched):
+        if got == f"{SKILL_ID}:{row['intent_label']}":
+            hits[row["intent_label"]] += 1
+        else:
+            misses.append(f"{row['utterance']!r}: expected {row['intent_label']}, got {got}")
+    starved = sorted(label for label, count in hits.items()
+                     if count < MIN_MATCHED_ROWS_PER_INTENT)
+    rate = 1 - len(misses) / len(rows)
+    print(f"[{lang}] {rate:.1%} of {len(rows)} rows match", *misses, sep="\n  ")
+    if starved:
+        print(f"[{lang}] intents below {MIN_MATCHED_ROWS_PER_INTENT} matched rows: {starved}")
+    assert not starved, (
+        f"[{lang}] intents below {MIN_MATCHED_ROWS_PER_INTENT} matched rows: {starved}"
     )
-    capture = CaptureSession(
-        mc,
-        eof_msgs=["ovos.utterance.handled", "ovos.intent.unmatched"],
-        ignore_messages=_IGNORE,
-    )
-    capture.capture(utterance, timeout=30)
-    return [m.msg_type for m in capture.finish()]
-
-
-def _golden_id(row):
-    return row["utterance"]
-
-
-@pytest.mark.timeout(60)
-@pytest.mark.parametrize("row", GOLDEN_ROWS, ids=_golden_id)
-def test_golden_utterance(minicroft, row):
-    types = _types(minicroft, row["utterance"], f"golden-{_golden_id(row)}")
-    assert any(_matches_intent(t, SKILL_ID, row["intent_label"]) for t in types), (
-        f"{row['utterance']!r}: expected {SKILL_ID}:{row['intent_label']}, got {types!r}"
+    if lang in GOLDEN_LOCALE_GAPS:
+        measured, reason = GOLDEN_LOCALE_GAPS[lang]
+        assert rate >= measured - GAP_TOLERANCE, (
+            f"[{lang}] {rate:.1%} of rows match, more than {GAP_TOLERANCE:.0%} below "
+            f"the measured {measured:.1%}:\n  " + "\n  ".join(misses)
+        )
+        assert rate < MIN_MATCH_RATE, (
+            f"[{lang}] {rate:.1%} of rows match, at the gate: remove its GOLDEN_LOCALE_GAPS entry"
+        )
+        pytest.xfail(f"[{lang}] {rate:.1%} of rows match: {reason}")
+    assert rate >= MIN_MATCH_RATE, (
+        f"[{lang}] {rate:.1%} of rows match, below {MIN_MATCH_RATE:.0%}:\n  " + "\n  ".join(misses)
     )
 
 
-@pytest.mark.timeout(60)
-@pytest.mark.parametrize("negative", NEGATIVE_UTTERANCES, ids=lambda n: n[0])
-def test_negative_confusable_not_claimed(minicroft, negative):
-    text, source_skill = negative
-    types = _types(minicroft, text, f"negative-{text}")
-    claimed = any(t.startswith(f"{SKILL_ID}:") for t in types)
-    assert not claimed, f"{text!r} (from {source_skill}) was incorrectly claimed by {SKILL_ID}"
+@pytest.mark.timeout(900)
+@pytest.mark.parametrize("lang", [
+    pytest.param(lang, marks=pytest.mark.xfail(reason=NEGATIVE_ENGINE_GAPS[lang]))
+    if lang in NEGATIVE_ENGINE_GAPS else lang
+    for lang in sorted(NEGATIVE_ROWS)
+])
+def test_negative_rows_match_no_skill_intent(lang):
+    rows = NEGATIVE_ROWS[lang]
+    known = NEGATIVE_KNOWN_CLAIMS.get(lang, {})
+    matched = _match_all(lang, rows)
+    claims = [(row["utterance"], got.removeprefix(f"{SKILL_ID}:"))
+              for row, got in zip(rows, matched)
+              if got and got.startswith(f"{SKILL_ID}:")]
+    unknown = [f"{utterance!r}: matched {intent}" for utterance, intent in claims
+               if known.get(utterance) != intent]
+    print(f"[{lang}] {len(claims)} of {len(rows)} negative rows claimed, "
+          f"{len(unknown)} not in NEGATIVE_KNOWN_CLAIMS", *unknown, sep="\n  ")
+    assert not unknown, f"[{lang}] negative rows matched this skill:\n  " + "\n  ".join(unknown)
+
+
+def test_every_shipping_locale_has_a_golden_file():
+    golden = {p.stem.split("_", 2)[2] for p in END2END_DIR.glob("golden_utterances_*.jsonl")}
+    shipping = {d.name for d in LOCALE_ROOT.iterdir() if d.is_dir() and any(d.rglob("*.intent"))}
+    assert golden == shipping, f"golden files {sorted(golden ^ shipping)} differ from shipping locales"
+
+
+def test_every_locale_ships_every_en_us_intent():
+    reference = {p.name for p in (LOCALE_ROOT / "en-US").rglob("*.intent")}
+    missing = {d.name: sorted(reference - {p.name for p in d.rglob("*.intent")})
+               for d in LOCALE_ROOT.iterdir() if d.is_dir() and any(d.rglob("*.intent"))}
+    missing = {lang: files for lang, files in missing.items() if files}
+    assert not missing, f"locales without an en-US intent file: {missing}"

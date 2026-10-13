@@ -2,10 +2,12 @@ import datetime
 import re
 
 import requests
+from dateutil.relativedelta import relativedelta
 from typing import Optional, Union
 from bs4 import BeautifulSoup
 from ovos_bus_client.session import SessionManager
 from ovos_date_parser import extract_datetime
+from ovos_number_parser import extract_number
 from ovos_workshop.decorators import intent_handler
 from ovos_workshop.skills.auto_translatable import OVOSSkill
 from ovos_utils.log import LOG
@@ -28,6 +30,13 @@ DICTIONARY_WOD_URL = "https://www.dictionary.com/e/word-of-the-day"
 # how many past words to keep in `self.settings["word_history"]`, keyed by
 # ISO date ("YYYY-MM-DD"); oldest entries are dropped once the cap is hit
 MAX_WORD_HISTORY = 30
+# words on each side of an "ago" marker that may belong to the date phrase
+MAX_SPAN_WORDS = 3
+
+
+def _plain(text: str) -> str:
+    """Lower-case words only: engines strip hyphens and apostrophes from a request."""
+    return " ".join(re.findall(r"\w+", text.lower()))
 
 
 def _http_get(url, **kwargs):
@@ -241,7 +250,7 @@ class WordOfTheDaySkill(OVOSSkill):
     def _remember_word(self, date: datetime.date, word: str):
         """Persist `word` as the word of the day for `date` in settings.
 
-        Keyed by ISO date so lookups from `handle_past_word_intent` are a
+        Keyed by ISO date so lookups from `_speak_past_word` are a
         plain dict get; capped at `MAX_WORD_HISTORY` entries, dropping the
         oldest dates first (ISO keys sort lexicographically).
         """
@@ -258,6 +267,181 @@ class WordOfTheDaySkill(OVOSSkill):
 
     @intent_handler("word_of_the_day.intent")
     def handle_word_of_the_day_intent(self, message):
+        """Speak today's word, or the word of an earlier day when the request
+        names one ({date} slot or a ``past.voc`` word such as "yesterday")."""
+        try:
+            date = self._requested_date(message)
+        except ValueError:
+            # a {date} slot WAS captured but could not be parsed - say there
+            # is no word for it instead of answering about another day
+            self.speak_dialog("no_word_history")
+            return
+        if date is None or date >= now_local().date():
+            self._speak_todays_word(message)
+        else:
+            self._speak_past_word(message, date)
+
+    def _requested_date(self, message) -> Optional[datetime.date]:
+        """The earlier day the request names, or None for today.
+
+        The date comes from the {date} slot. Without a slot the matched
+        ``before_yesterday.voc``, ``past.voc``, ``weekday.voc`` or ``ago.voc``
+        phrase decides, because the m2v engine sends no slot. Only the matched
+        phrase is parsed, never the whole utterance: "day" in "word of the
+        day" would read as a date. Raises ValueError when the request names a
+        day that is not an earlier day this skill can name with certainty.
+        """
+        today = now_local().date()
+        slot = message.data.get("date")
+        if slot:
+            return self._past_date_of_slot(slot, today)
+        utterance = (message.data.get("utterance") or "").lower()
+        found = self._past_phrase(utterance, today)
+        if found is None:
+            return None
+        date, start = found
+        # "never mind yesterday, what is today's word": the later day word decides
+        _, today_start = self._voc_match(utterance, "today", whole_word=True)
+        if today_start is not None and today_start > start:
+            return None
+        return date
+
+    def _past_phrase(self, utterance: str, today: datetime.date):
+        """(day, position) of the first past-day phrase of the request, or None."""
+        phrase, start = self._voc_match(utterance, "before_yesterday")
+        if phrase:
+            return today - datetime.timedelta(days=2), start
+        phrase, start = self._voc_match(utterance, "past")
+        if phrase:
+            return self._parse_date(phrase) or today - datetime.timedelta(days=1), start
+        phrase, start = self._voc_match(utterance, "weekday")
+        if phrase:
+            return self._weekday_date(phrase, today), start
+        for voc, needs_number in (("ago", False), ("days", True)):
+            phrase, start = self._voc_match(utterance, voc, whole_word=True)
+            if phrase:
+                date = self._date_around_marker(utterance, phrase, today, needs_number)
+                return (date, start) if date else None
+        return None
+
+    def _weekday_date(self, text: str, today: datetime.date) -> Optional[datetime.date]:
+        """The latest day, today included, that falls on the weekday ``text`` names.
+
+        Line N of ``weekday.voc`` lists the spellings of weekday N (Monday is 0),
+        so no date parser is involved. Returns None when ``text`` names no weekday.
+        """
+        text = _plain(text)
+        found = [(len(_plain(spelling)), index)
+                 for index, spellings in enumerate(self.resources.load_vocabulary_file("weekday"))
+                 for spelling in spellings if _plain(spelling) in text]
+        if not found:
+            return None
+        # the longest spelling wins: in fa-IR "شنبه" (Saturday) is inside "یکشنبه" (Sunday)
+        index = max(found)[1]
+        return today - datetime.timedelta(days=(today.weekday() - index) % 7)
+
+    def _voc_match(self, utterance: str, voc: str, whole_word: bool = False):
+        """(longest phrase of ``<voc>.voc`` in the utterance, its position) or (None, None)."""
+        text = _plain(utterance)
+        for phrase in sorted(self.voc_list(voc), key=len, reverse=True):
+            plain = _plain(phrase)
+            pattern = rf"(?<!\w){re.escape(plain)}(?!\w)" if whole_word else re.escape(plain)
+            found = re.search(pattern, text)
+            if found:
+                return phrase.lower(), found.start()
+        return None, None
+
+    def _voc_phrase(self, utterance: str, voc: str, whole_word: bool = False) -> Optional[str]:
+        """The longest phrase of ``<voc>.voc`` that the utterance contains."""
+        return self._voc_match(utterance, voc, whole_word)[0]
+
+    def _parse_date(self, text: str, anchor: Optional[datetime.datetime] = None) -> Optional[datetime.date]:
+        """The date the parser reads in ``text``, or None. Parser errors count as no date."""
+        try:
+            parsed = extract_datetime(text, lang=self.lang, anchorDate=anchor)
+        except Exception:
+            LOG.exception(f"failed to parse a date in {self.lang} from {text!r}")
+            return None
+        return parsed[0].date() if parsed else None
+
+    def _date_around_marker(self, utterance: str, marker: str, today: datetime.date,
+                            needs_number: bool = False) -> Optional[datetime.date]:
+        """Parse the smallest span around an "ago" marker that names a past day.
+
+        The marker alone ("days ago") gives no number, and the words next to it
+        ("three", "il y a") complete the phrase. A span counts only when it
+        gives another day than the marker alone, so the number decides. When no
+        span names a day, a marker that always means "ago" raises ValueError.
+        A marker that is also an everyday word ("días" in "buenos días") raises
+        only when a number stands next to it, and otherwise gives None.
+        """
+        alone = self._parse_date(marker)
+        utterance, marker = _plain(utterance), _plain(marker)
+        start = utterance.index(marker)
+        before = utterance[:start].split()
+        after = utterance[start + len(marker):].split()
+        for size in range(1, MAX_SPAN_WORDS * 2 + 1):
+            for left in range(min(size, MAX_SPAN_WORDS) + 1):
+                right = size - left
+                if right > MAX_SPAN_WORDS:
+                    continue
+                span = " ".join(before[len(before) - left:] + [marker] + after[:right])
+                date = self._parse_date(span)
+                if date and date < today and date != alone:
+                    return date
+        around = " ".join(before[-MAX_SPAN_WORDS:] + [marker] + after[:MAX_SPAN_WORDS])
+        if needs_number and not self._has_number(around):
+            return None
+        raise ValueError(utterance)
+
+    def _has_number(self, text: str) -> bool:
+        try:
+            return extract_number(text, lang=self.lang) is not False
+        except Exception:
+            return bool(re.search(r"\d", text))
+
+    def _past_date_of_slot(self, slot: str, today: datetime.date) -> datetime.date:
+        """The earlier day a {date} slot names with certainty.
+
+        Today's word answers only a slot that says "today". A slot the parser
+        reads as today, as a day with no number that the slot spells out, or
+        as a day whose number is not in the slot is not certain, and raises
+        ValueError. The parser resolves a weekday or a calendar date to its
+        next occurrence, so a later result moves back by a month or a year (a slot with digits) when that earlier day parses
+        from the same slot. A weekday word names the latest such day without
+        the parser, and the weekday of today names today.
+        """
+        if self._voc_phrase(slot.lower(), "today", whole_word=True):
+            return today
+        digits = re.findall(r"\d+", slot)
+        weekday = None if digits else self._weekday_date(slot, today)
+        if weekday:
+            return weekday
+        date = self._parse_date(slot)
+        if date is None:
+            raise ValueError(slot)
+        # ordinal words ("october twelfth") parse as the 1st of the month
+        if (digits and date.day not in map(int, digits)) or (not digits and date.day == 1):
+            raise ValueError(slot)
+        if date < today:
+            return date
+        earlier = [date - relativedelta(months=1), date - relativedelta(years=1)] if digits else []
+        for candidate in earlier:
+            if candidate < today and self._same_date_from_before(slot, candidate):
+                return candidate
+        raise ValueError(slot)
+
+    def _same_date_from_before(self, slot: str, date: datetime.date) -> bool:
+        """True when the slot names ``date`` as the next occurrence after a
+        day or three days before it, which is how a weekday or a calendar date
+        behaves and how "tomorrow" does not."""
+        for days in (1, 3):
+            anchor = datetime.datetime.combine(date - datetime.timedelta(days=days), datetime.time(12))
+            if self._parse_date(slot, anchor) != date:
+                return False
+        return True
+
+    def _speak_todays_word(self, message):
         lang = self.lang.lower()
         primary_lang = lang.split("-")[0]
         try:
@@ -288,28 +472,11 @@ class WordOfTheDaySkill(OVOSSkill):
         SessionManager.get(message).set_intent_context(
             PREV_WOD_WORD_CONTEXT, wod, scope="shared", turns_remaining=3)
 
-    @intent_handler("past_word.intent")
-    def handle_past_word_intent(self, message):
-        date_slot = message.data.get("date")
-        utt = date_slot or message.data.get("utterance") or ""
-        try:
-            date = extract_datetime(utt, lang=self.lang)[0].date()
-        except Exception:
-            LOG.exception(f"failed to extract date in {self.lang} from {utt}")
-            if date_slot:
-                # a {date} slot WAS captured but could not be parsed - speak
-                # the "no history" dialog instead of silently answering about
-                # yesterday, which would misattribute the answer to a date
-                # the user never asked about.
-                self.speak_dialog("no_word_history")
-                return
-            date = now_local().date() - datetime.timedelta(days=1)
-
+    def _speak_past_word(self, message, date: datetime.date):
         word = self._recall_word(date)
         if not word:
             self.speak_dialog("no_word_history")
             return
-
         self.speak_dialog("word_of_day", {"word": word})
         SessionManager.get(message).set_intent_context(
             PREV_WOD_WORD_CONTEXT, word, scope="shared", turns_remaining=3)
