@@ -22,7 +22,7 @@ from unittest.mock import patch
 
 import pytest
 
-# Four padatious/padacioso pipeline plugins are trained for every test in
+# Two padacioso pipeline plugins are trained for every test in
 # this module (see _PIPELINE below); ovoscope's default 5s trained-timeout
 # is tuned for a single pipeline and is too tight here, which leaked
 # untorn-down MiniCroft instances between tests. Raise it so teardown
@@ -34,13 +34,12 @@ ovoscope = pytest.importorskip("ovoscope", reason="ovoscope not installed")
 from ovos_bus_client.message import Message  # noqa: E402
 from ovos_bus_client.session import Session  # noqa: E402
 from ovoscope import CaptureSession, get_minicroft  # noqa: E402
+from ovos_utils.time import now_local  # noqa: E402
 
 SKILL_ID = "ovos-skill-word-of-the-day.openvoiceos"
 LANG = "en-US"
 _PIPELINE = [
-    "ovos-padatious-pipeline-plugin-high",
     "ovos-padacioso-pipeline-plugin-high",
-    "ovos-padatious-pipeline-plugin-medium",
     "ovos-padacioso-pipeline-plugin-medium",
 ]
 
@@ -108,11 +107,11 @@ def test_spell_follow_up_speaks_the_remembered_word(minicroft):
 
 
 @pytest.mark.timeout(60)
-def test_past_word_intent_recalls_a_stored_word(minicroft):
+def test_word_of_the_day_intent_recalls_a_stored_word_for_yesterday(minicroft):
     import datetime as _dt
 
     skill = minicroft.plugin_skills[SKILL_ID].instance
-    yesterday_date = _dt.datetime.now().date() - _dt.timedelta(days=1)
+    yesterday_date = now_local().date() - _dt.timedelta(days=1)
     skill.settings["word_history"] = {yesterday_date.strftime("%Y-%m-%d"): "petrichor"}
 
     session = Session("history-e2e-past-word")
@@ -121,18 +120,18 @@ def test_past_word_intent_recalls_a_stored_word(minicroft):
 
     followup = _send(minicroft, "tell me yesterday's word", session)
 
-    # padatious matches drop the ".intent" file suffix from the bus event
+    # matches may drop the ".intent" file suffix from the bus event
     # name; padacioso keeps it. Accept either since routing (not the exact
     # matched pipeline) is what this assertion cares about.
     types = [m.msg_type for m in followup]
-    assert any(t in (f"{SKILL_ID}:past_word", f"{SKILL_ID}:past_word.intent") for t in types), types
+    assert any(t in (f"{SKILL_ID}:word_of_the_day", f"{SKILL_ID}:word_of_the_day.intent") for t in types), types
     spoken = [m.data.get("utterance") for m in followup
               if m.msg_type in ("speak", "ovos.utterance.speak")]
     assert any("petrichor" in (u or "") for u in spoken), spoken
 
 
 @pytest.mark.timeout(60)
-def test_past_word_intent_speaks_history_dialog_when_nothing_recorded(minicroft):
+def test_word_of_the_day_intent_speaks_history_dialog_when_nothing_recorded(minicroft):
     skill = minicroft.plugin_skills[SKILL_ID].instance
     skill.settings["word_history"] = {}
 

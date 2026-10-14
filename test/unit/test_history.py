@@ -5,6 +5,7 @@ against a bare ``SimpleNamespace`` instance, no bus/core required.
 """
 import datetime
 import importlib.util
+import inspect
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -81,56 +82,88 @@ def test_remember_word_caps_history_at_max_entries():
     assert base.strftime("%Y-%m-%d") not in history
 
 
-def test_past_word_intent_answers_from_history(monkeypatch):
-    yesterday = skill.now_local().date() - datetime.timedelta(days=1)
-    instance = make_skill_instance(
-        settings={"word_history": {yesterday.strftime("%Y-%m-%d"): "petrichor"}}
-    )
-    instance.handle_past_word_intent = skill.WordOfTheDaySkill.handle_past_word_intent.__get__(instance)
+def bind_word_of_the_day(instance, past_phrases=("yesterday", "yesterday's", "previous")):
+    cls = skill.WordOfTheDaySkill
+    instance.voc_list = lambda name: list(past_phrases) if name == "past" else []
+    instance.spoken = []
+    instance.speak = instance.spoken.append
+    instance.gui = SimpleNamespace(show_text=lambda *args: None)
+    instance.resources = SimpleNamespace(load_vocabulary_file=lambda name: [])
+    for name, function in vars(cls).items():
+        if inspect.isfunction(function) and name not in instance.__dict__:
+            setattr(instance, name, function.__get__(instance))
+    return instance
 
+
+def run_word_of_the_day(instance, data):
     session = FakeSession()
-    message = DummyMessage({"utterance": "what was yesterday's word"})
     with patch.object(skill, "SessionManager") as mock_sm:
         mock_sm.get.return_value = session
-        instance.handle_past_word_intent(message)
+        instance.handle_word_of_the_day_intent(DummyMessage(data))
+    return session
+
+
+def test_word_of_the_day_without_a_past_word_fetches_todays_word():
+    instance = bind_word_of_the_day(make_skill_instance())
+    with patch.object(skill, "get_wod", return_value=("serendipity", "a happy accident")):
+        session = run_word_of_the_day(instance, {"utterance": "what is the word of the day"})
+
+    assert instance.dialogs == [("word_of_day", {"word": "serendipity"})]
+    assert instance.spoken == ["a happy accident"]
+    assert instance.settings["word_history"] == {skill.now_local().date().strftime("%Y-%m-%d"): "serendipity"}
+    assert session.intent_context["prev_wod_word"]["value"] == "serendipity"
+
+
+def test_word_of_the_day_with_yesterday_voc_answers_from_history():
+    yesterday = skill.now_local().date() - datetime.timedelta(days=1)
+    instance = bind_word_of_the_day(make_skill_instance(
+        settings={"word_history": {yesterday.strftime("%Y-%m-%d"): "petrichor"}}))
+    with patch.object(skill, "get_wod", side_effect=AssertionError("must not fetch today's word")):
+        session = run_word_of_the_day(instance, {"utterance": "what was yesterday's word of the day"})
 
     assert instance.dialogs == [("word_of_day", {"word": "petrichor"})]
     assert session.intent_context["prev_wod_word"]["value"] == "petrichor"
 
 
-def test_past_word_intent_speaks_history_dialog_when_nothing_recorded():
-    instance = make_skill_instance(settings={"word_history": {}})
-    instance.handle_past_word_intent = skill.WordOfTheDaySkill.handle_past_word_intent.__get__(instance)
+def test_word_of_the_day_with_an_explicit_date_slot_answers_from_history():
+    day = skill.now_local().date() - datetime.timedelta(days=3)
+    instance = bind_word_of_the_day(make_skill_instance(
+        settings={"word_history": {day.strftime("%Y-%m-%d"): "ephemeral"}}))
+    session = run_word_of_the_day(instance, {
+        "date": day.strftime("%B %d %Y"),
+        "utterance": f"what was the word of the day on {day.strftime('%B %d %Y')}"})
 
-    session = FakeSession()
-    message = DummyMessage({"utterance": "what was yesterday's word"})
-    with patch.object(skill, "SessionManager") as mock_sm:
-        mock_sm.get.return_value = session
-        instance.handle_past_word_intent(message)
+    assert instance.dialogs == [("word_of_day", {"word": "ephemeral"})]
+    assert session.intent_context["prev_wod_word"]["value"] == "ephemeral"
+
+
+def test_word_of_the_day_never_reads_the_day_in_its_own_name_as_a_date():
+    """"day" in "word of the day" must not make a past request."""
+    instance = bind_word_of_the_day(make_skill_instance())
+    with patch.object(skill, "get_wod", return_value=("serendipity", "a happy accident")):
+        run_word_of_the_day(instance, {"utterance": "tell me the word of the day"})
+
+    assert instance.dialogs == [("word_of_day", {"word": "serendipity"})]
+
+
+def test_word_of_the_day_speaks_history_dialog_when_nothing_recorded():
+    instance = bind_word_of_the_day(make_skill_instance(settings={"word_history": {}}))
+    session = run_word_of_the_day(instance, {"utterance": "what was yesterday's word"})
 
     assert instance.dialogs == [("no_word_history", None)]
     assert session.intent_context == {}
 
 
-def test_past_word_intent_with_unparseable_date_slot_speaks_history_dialog():
-    """A garbled {date} slot must NOT silently fall back to yesterday's
-    word: extract_datetime returns None for it, so the handler must speak
-    no_word_history rather than misattributing yesterday's word to the date
-    the user actually asked about."""
+def test_word_of_the_day_with_unparseable_date_slot_speaks_history_dialog():
+    """A garbled {date} slot must NOT silently fall back to yesterday's or
+    today's word: the handler speaks no_word_history rather than answering
+    about a date the user never asked about."""
     yesterday = skill.now_local().date() - datetime.timedelta(days=1)
-    instance = make_skill_instance(
-        settings={"word_history": {yesterday.strftime("%Y-%m-%d"): "petrichor"}}
-    )
-    instance.handle_past_word_intent = skill.WordOfTheDaySkill.handle_past_word_intent.__get__(instance)
-
-    session = FakeSession()
-    message = DummyMessage({
+    instance = bind_word_of_the_day(make_skill_instance(
+        settings={"word_history": {yesterday.strftime("%Y-%m-%d"): "petrichor"}}))
+    session = run_word_of_the_day(instance, {
         "date": "flibbertigibbet nonsense",
-        "utterance": "what was the word on flibbertigibbet nonsense",
-    })
-    with patch.object(skill, "SessionManager") as mock_sm:
-        mock_sm.get.return_value = session
-        instance.handle_past_word_intent(message)
+        "utterance": "what was the word on flibbertigibbet nonsense"})
 
     assert instance.dialogs == [("no_word_history", None)]
     assert session.intent_context == {}
