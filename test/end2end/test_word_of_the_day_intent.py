@@ -20,7 +20,8 @@ from ovos_bus_client.message import Message
 from ovos_bus_client.session import Session
 from ovos_spec_tools import SpecMessage
 from ovos_utils.log import LOG
-from ovoscope import End2EndTest, get_minicroft
+from ovoscope import End2EndTest
+from ovoscope.routing import PIPELINE, TALLY, get_prototype_minicroft
 
 
 SKILL_ID = "ovos-skill-word-of-the-day.openvoiceos"
@@ -46,7 +47,7 @@ class TestWordOfTheDayIntentRouting(TestCase):
     def setUpClass(cls):
         LOG.set_level("DEBUG")
         cls.calls = []
-        cls.minicroft = get_minicroft(
+        cls.minicroft = get_prototype_minicroft(
             [SKILL_ID],
             secondary_langs=SECONDARY_LANGS,
         )
@@ -80,7 +81,7 @@ class TestWordOfTheDayIntentRouting(TestCase):
     def _assert_routes_to_source(self, utterance, lang, source_name):
         session = Session(f"wod-{lang}-{abs(hash(utterance))}")
         session.lang = lang
-        session.pipeline = ["ovos-padacioso-pipeline-plugin-high"]
+        session.pipeline = list(PIPELINE)
         message = Message(
             "recognizer_loop:utterance",
             {"utterances": [utterance], "lang": lang},
@@ -116,7 +117,22 @@ class TestWordOfTheDayIntentRouting(TestCase):
                 Message(SpecMessage.UTTERANCE_HANDLED.value, {}, {"skill_id": SKILL_ID}),
             ],
         )
-        test.execute(timeout=15)
+        fired = []
+
+        def record(raw):
+            fired.append(Message.deserialize(raw).msg_type)
+
+        self.minicroft.bus.on("message", record)
+        try:
+            test.execute(timeout=15)
+        except AssertionError:
+            # a misrouted request breaks the exact sequence: count it as a
+            # routing miss instead of a failure
+            TALLY.assert_routed(utterance, INTENT, fired)
+            raise
+        finally:
+            self.minicroft.bus.remove("message", record)
+        TALLY.assert_routed(utterance, INTENT, fired)
         self.assertEqual(self.calls, [(source_name, (), {})])
 
     def test_english_routes_to_dictionary_source(self):

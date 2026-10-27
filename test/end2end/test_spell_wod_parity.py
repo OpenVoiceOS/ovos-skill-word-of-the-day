@@ -16,17 +16,15 @@ ovoscope = pytest.importorskip("ovoscope", reason="ovoscope not installed")
 
 from ovos_bus_client.message import Message  # noqa: E402
 from ovos_bus_client.session import Session  # noqa: E402
-from ovoscope import CaptureSession, get_minicroft  # noqa: E402
+from ovoscope import CaptureSession  # noqa: E402
+from ovoscope.routing import PIPELINE, TALLY, get_prototype_minicroft  # noqa: E402
 
 SKILL_ID = "ovos-skill-word-of-the-day.openvoiceos"
 LANG = "en-US"
 
-_PIPELINE = [
-    "ovos-padatious-pipeline-plugin-high",
-    "ovos-padacioso-pipeline-plugin-high",
-    "ovos-padatious-pipeline-plugin-medium",
-    "ovos-padacioso-pipeline-plugin-medium",
-]
+SPELL_WOD = f"{SKILL_ID}:spell_wod"
+SKILL_INTENTS = [f"{SKILL_ID}:{name}"
+                 for name in ("word_of_the_day", "past_word", "spell_wod")]
 
 _IGNORE = ["mycroft.audio.play_sound"]
 
@@ -47,7 +45,7 @@ SPELL_PHRASINGS = [
 
 @pytest.fixture(scope="module")
 def minicroft():
-    mc = get_minicroft([SKILL_ID])
+    mc = get_prototype_minicroft([SKILL_ID])
     yield mc
     mc.stop()
 
@@ -55,7 +53,7 @@ def minicroft():
 def _session(session_id, prev_word=None):
     session = Session(session_id)
     session.lang = LANG
-    session.pipeline = list(_PIPELINE)
+    session.pipeline = list(PIPELINE)
     if prev_word is not None:
         session.set_intent_context("prev_wod_word", prev_word, scope="shared", turns_remaining=3)
     return session
@@ -85,7 +83,7 @@ def _fire(mc, session, text):
 def test_spell_phrasing_speaks_word_with_active_context(minicroft, phrasing):
     session = _session(f"parity-positive-{phrasing}", prev_word="serendipity")
     spoken, types = _fire(minicroft, session, phrasing)
-    assert any(t.startswith(f"{SKILL_ID}:") for t in types), (phrasing, types)
+    TALLY.assert_routed(phrasing, SPELL_WOD, types)
     assert any("serendipity" in u.lower() for u in spoken), (phrasing, spoken)
 
 
@@ -94,5 +92,4 @@ def test_spell_phrasing_speaks_word_with_active_context(minicroft, phrasing):
 def test_spell_phrasing_does_not_fire_without_prior_context(minicroft, phrasing):
     session = _session(f"parity-negative-{phrasing}")
     _, types = _fire(minicroft, session, phrasing)
-    claimed = any(t.startswith(f"{SKILL_ID}:") for t in types)
-    assert not claimed, f"{phrasing!r} with no prior word was claimed by {SKILL_ID}: {types!r}"
+    TALLY.assert_not_routed(phrasing, SKILL_INTENTS, types)

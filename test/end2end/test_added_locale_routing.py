@@ -8,11 +8,11 @@ never routes any utterance for that intent -- a silent failure that only
 shows up when a real user speaks to the skill in that language.
 
 Each case below boots a MiniCroft with the locale under test as the ACTIVE
-language (`get_minicroft([SKILL_ID], lang=<locale>)`, not merely
+language (`get_prototype_minicroft([SKILL_ID], lang=<locale>)`, not merely
 `secondary_langs`), sends a real utterance in that language, and asserts
-the skill's `word_of_the_day` intent handles it, so a locale with a
-missing or misnamed intent resource fails this test the same way it fails
-for a real user.
+the skill's `word_of_the_day` intent handles it. The pipeline builds its
+intents from the skill's own `.intent` files, so a locale with a missing or
+misnamed intent resource routes nothing.
 
 ca-ES, da-DK, de-DE, es-ES, fr-FR, gl-ES, kab and pt-PT are not covered by
 a per-locale active-language routing test in this suite.
@@ -27,7 +27,7 @@ ovoscope = pytest.importorskip("ovoscope", reason="ovoscope not installed")
 from ovos_bus_client.message import Message  # noqa: E402
 from ovos_bus_client.session import Session  # noqa: E402
 from ovos_utils.log import LOG  # noqa: E402
-from ovoscope import get_minicroft  # noqa: E402
+from ovoscope.routing import PIPELINE, TALLY, get_prototype_minicroft  # noqa: E402
 
 SKILL_ID = "ovos-skill-word-of-the-day.openvoiceos"
 INTENT = f"{SKILL_ID}:word_of_the_day"
@@ -63,7 +63,7 @@ class _AddedLocaleRoutingBase:
         cls._patches = _patch_parsers()
         for p in cls._patches:
             p.start()
-        cls.minicroft = get_minicroft([SKILL_ID], lang=cls.lang)
+        cls.minicroft = get_prototype_minicroft([SKILL_ID], lang=cls.lang)
 
     @classmethod
     def tearDownClass(cls):
@@ -77,7 +77,7 @@ class _AddedLocaleRoutingBase:
         utterance = _LOCALE_UTTERANCES[self.lang]
         session = Session(f"added-locale-{self.lang}")
         session.lang = self.lang
-        session.pipeline = ["ovos-padacioso-pipeline-plugin-high"]
+        session.pipeline = list(PIPELINE)
 
         message = Message(
             "recognizer_loop:utterance",
@@ -86,19 +86,15 @@ class _AddedLocaleRoutingBase:
         )
 
         seen = []
-        for msg_type in (INTENT, "speak", "complete_intent_failure",
-                         "ovos.utterance.handled"):
-            self.minicroft.bus.on(msg_type, lambda m: seen.append(m.msg_type))
+        self.minicroft.bus.on(
+            "message", lambda raw: seen.append(Message.deserialize(raw).msg_type))
 
         response = self.minicroft.bus.wait_for_response(
             message, "ovos.utterance.handled", timeout=15)
 
         self.assertIsNotNone(
             response, f"no ovos.utterance.handled for {self.lang}: {utterance!r}")
-        self.assertIn(
-            INTENT, seen,
-            f"{self.lang} utterance {utterance!r} did not route to "
-            f"{INTENT} (saw: {seen})")
+        TALLY.assert_routed(utterance, INTENT, seen)
         self.assertNotIn(
             "complete_intent_failure", seen,
             f"{self.lang} utterance {utterance!r} fell through to "
