@@ -20,7 +20,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-timeout", "ovoscope", "ovos-spec-tools"]
+test = ["pytest", "pytest-timeout", "ovoscope>=1.12.1a1", "ovos-m2v-pipeline>=0.37.3a1", "ovos-spec-tools"]
 
 [project.urls]
 Homepage = "https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day"
@@ -40,3 +40,6 @@ ovos_skill_word_of_the_day = ["locale/**/*", "*.json"]
 
 [tool.setuptools.dynamic]
 version = { attr = "version.__version__" }
+
+[tool.pytest.ini_options]
+ovoscope_min_routing_rate = 0.90

@@ -1,8 +1,8 @@
 """End-to-end tests for WordOfTheDaySkill via ovoscope.
 
-Verifies that the adapt intent `word_of_the_day` matches for each supported
-language and that the handler runs to completion. Parser functions that fetch
-the word from external sites are monkey-patched so tests run offline.
+Verifies that the `word_of_the_day` intent matches for each supported
+language and that the handler runs to completion. Parser functions that
+fetch the word from external sites are monkey-patched so tests run offline.
 
 ``expected_messages`` asserts the EXACT canonical message sequence (not "at
 least N" / a subset): captured once via an isolated probe against this real
@@ -27,7 +27,8 @@ from ovos_bus_client.message import Message  # noqa: E402
 from ovos_bus_client.session import Session  # noqa: E402
 from ovos_spec_tools import SpecMessage  # noqa: E402
 from ovos_utils.log import LOG  # noqa: E402
-from ovoscope import End2EndTest, get_minicroft  # noqa: E402
+from ovoscope import End2EndTest  # noqa: E402
+from ovoscope.routing import PIPELINE, TALLY, get_prototype_minicroft  # noqa: E402
 
 SKILL_ID = "ovos-skill-word-of-the-day.openvoiceos"
 
@@ -68,7 +69,7 @@ class _WODBase(TestCase):
         cls._patches = _patch_parsers()
         for p in cls._patches:
             p.start()
-        cls.minicroft = get_minicroft(
+        cls.minicroft = get_prototype_minicroft(
             [SKILL_ID],
             secondary_langs=["pt-PT", "pt-BR", "fr-FR", "ca-ES", "gl-ES", "de-DE", "es-ES"],
         )
@@ -84,7 +85,7 @@ class _WODBase(TestCase):
     def _run(self, utterance: str, lang: str):
         session = Session(f"wod-{lang}")
         session.lang = lang
-        session.pipeline = ["ovos-padacioso-pipeline-plugin-high"]
+        session.pipeline = list(PIPELINE)
 
         message = Message(
             "recognizer_loop:utterance",
@@ -124,7 +125,22 @@ class _WODBase(TestCase):
                 Message(SpecMessage.UTTERANCE_HANDLED.value, {}, {"skill_id": SKILL_ID}),
             ],
         )
-        messages = test.execute(timeout=30)
+        fired = []
+
+        def record(raw):
+            fired.append(Message.deserialize(raw).msg_type)
+
+        self.minicroft.bus.on("message", record)
+        try:
+            messages = test.execute(timeout=30)
+        except AssertionError:
+            # a misrouted request breaks the exact sequence: count it as a
+            # routing miss instead of a failure
+            TALLY.assert_routed(utterance, intent_msg, fired)
+            raise
+        finally:
+            self.minicroft.bus.remove("message", record)
+        TALLY.assert_routed(utterance, intent_msg, fired)
 
         # expected_messages above asserts routing (exact message sequence)
         # but leaves SPEAK.data unchecked (empty dict = "don't care"), so it
