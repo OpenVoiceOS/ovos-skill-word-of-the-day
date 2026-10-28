@@ -1,0 +1,17 @@
+{
+  "skill_id": "ovos-skill-word-of-the-day.openvoiceos",
+  "source": "https://github.com/OpenVoiceOS/ovos-skill-word-of-the-day",
+  "name": "Word Of The Day",
+  "description": "Speak the word of the day and spell it on request.",
+  "examples": [
+    "cuál era la palabra de ayer",
+    "deletréala",
+    "palabra del día"
+  ],
+  "tags": [
+    "word-of-the-day",
+    "dictionary",
+    "vocabulary",
+    "daily"
+  ]
+}

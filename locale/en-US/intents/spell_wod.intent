@@ -1,0 +1,14 @@
+# Follow-up "spell that" for the last word of the day spoken (today's word
+# or a recalled past word). Every line here is a phrasing this skill should
+# accept -- the spell_wod.voc phrasings carried over verbatim, plus natural
+# variants. This template has no meaning on its own: it only fires when the
+# "prev_wod_word" session context is active (requires_context on the
+# handler), never on the bare utterance with nothing looked up first.
+spell that [word]
+how do you spell (that|it)
+spell it [for me]
+how do you spell it
+spell it out
+spell it out for me
+can you spell that
+can you spell it
